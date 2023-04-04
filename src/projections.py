@@ -52,16 +52,14 @@ def opentsne_transform(features, base_tsne):
     return tsne_results
 
 def compute_projections(project_name, batch_id, features, path_images, base_tsne = None, compute_base = True):    
-    print('Computing projections...')
+    print('  Computing projections...')
     if compute_base:
         base_tsne = opentsne_fit(features)
         projection = base_tsne.copy()
     else:
         projection = opentsne_transform(features, base_tsne)         
         
-    print(projection.shape)
     path_images = np.reshape(np.array(path_images), (-1, 1))
-    print(path_images.shape)
 
     tsne_arr = np.hstack((path_images, projection))
 
@@ -69,3 +67,6 @@ def compute_projections(project_name, batch_id, features, path_images, base_tsne
     dataframes_folder = join(defaults['output_folder'], project_name, defaults['dataframes'])
     create_dir(dataframes_folder)
     df_preds.to_csv(dataframes_folder, 'batch_{:04d}_{}.csv'.format(batch_id, project_name), index=None)
+
+    print('  Projections computed.')
+    

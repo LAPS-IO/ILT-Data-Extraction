@@ -128,7 +128,7 @@ def compute_features(images_folder, batch_id, model, weights_path):
     test_data = ILTDataset(test_list, transform=test_transform)
     test_loader = DataLoader(dataset = test_data, batch_size=batch_size, shuffle=False)
 
-    images_path = []
+    path_images = []
     predictions = []
     features = None
 
@@ -151,7 +151,7 @@ def compute_features(images_folder, batch_id, model, weights_path):
                 preds_list.append(preds[i].item())
                 paths[i] = basename(paths[i])
             predictions.extend(preds_list)
-            images_path.extend(paths)
+            path_images.extend(paths)
         
         features = features.cpu().detach().numpy()
 
@@ -163,7 +163,7 @@ def compute_features(images_folder, batch_id, model, weights_path):
 #        df_features = pd.DataFrame(arr, columns = cs)
 #        df_features.to_csv(join(predictions_path, batch_id + '.csv'), index=None)
 
-    return features, paths
+    return features, path_images
     
     
 
