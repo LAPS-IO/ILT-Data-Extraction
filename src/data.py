@@ -38,7 +38,7 @@ def create_csv(df, dataframes_path, filename):
     df['y3'] = [0] * df.shape[0]
     df['thumbnails'] = df['names']
     
-    df = df.rename(columns={'layer1': 'D1', 'layer2': 'D4', 'layer3': 'D7', 'layer4x': 'x', 'layer4y': 'y'})
+#    df = df.rename(columns={'layer1': 'D1', 'layer2': 'D4', 'layer3': 'D7', 'layer4x': 'x', 'layer4y': 'y'})
     
     df.to_csv(join(dataframes_path, filename + '.csv'), index = False)
 
@@ -58,10 +58,10 @@ def get_image(path, paint = False, color = (1, 1, 1), zoom=0.2, dim = 255):
     return OffsetImage(img, zoom=zoom)
 
 def map_of_images(df, xrange, yrange, images_folder, output_path, zoom, fig_size=40):
-    df_filtered = df[(df['layer4x'] >= xrange[0]) & (df['layer4x'] <= xrange[1]) & (df['layer4y'] >= yrange[0]) & (df['layer4y'] <= yrange[1])]
+    df_filtered = df[(df['x'] >= xrange[0]) & (df['x'] <= xrange[1]) & (df['y'] >= yrange[0]) & (df['y'] <= yrange[1])]
     
-    x = df_filtered['layer4x']
-    y = df_filtered['layer4y']
+    x = df_filtered['x']
+    y = df_filtered['y']
     names = df_filtered['names']
     classes = df_filtered['Class']
     
