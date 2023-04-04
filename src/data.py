@@ -12,7 +12,7 @@ from math import ceil, floor
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw 
-from aux import default_folders, create_dir
+from aux import defaults, create_dir
 
 # generate dataframe
 def create_csv(df, dataframes_path, filename):        
@@ -106,19 +106,18 @@ def rescale(input_path, output_path, img_name):
     cv2.imwrite(output_name, resized)
 
 
-def generate_data(project_name, range = 80):
+def generate_data(df, images_folder, project_name, batch_id, range = 80):
+    print('Generating background...')
     #match = 'last_after_p2'
 
 #    dataset_files = listdir(dataset_folder)
 
-    dataframes_folder = join(default_folders['output'], 'dataframes')
+    dataframes_folder = join(defaults['output'], project_name, defaults['dataframes'])
     create_dir(dataframes_folder)
 
-    backgrounds_folder = join(default_folders['output'], 'backgrounds')
+    backgrounds_folder = join(defaults['output'], project_name, defaults['backgrounds'])
     create_dir(backgrounds_folder)
         
-    input_images_folder = join(default_folders['output'], 'images')
-
     fig_size = 40
     factor = 2 #default 2 tsne, 20 umap
     xrange = [-range, range]
@@ -127,56 +126,52 @@ def generate_data(project_name, range = 80):
 
 #    df_map = pd.read_csv(join(dataset_folder, 'map_images.csv'))
 
-    for batch_name in listdir(input_images_folder):
-        #batch_name = 'batch_{:04d}'.format(batch_id)
-        #map_batch = df_map[df_map['Batch'] == batch_name]
-        #map_batch = map_batch.rename(columns={'Image': 'names'})
-        
-        current_time = datetime.now().strftime("%H:%M:%S")
-        print(batch_name, current_time)
-        filename = batch_name + '_' + project_name
-        
-        # Dataframe generation
-        #predictions_path = join(predictions_folder, batch_name + '_preds.csv')
-        #df = pd.read_csv(predictions_path, index_col = None)
-        #df = pd.merge(df, map_batch, on=['names'])
-        #df = remove_ppms(df)
-        
-        # Background generation
-        backgrounds_path = join(backgrounds_folder, filename + '.png')
-        
-        image = map_of_images(df, xrange, yrange, input_images_folder, backgrounds_path, zoom, fig_size)    
+    #batch_name = 'batch_{:04d}'.format(batch_id)
+    #map_batch = df_map[df_map['Batch'] == batch_name]
+    #map_batch = map_batch.rename(columns={'Image': 'names'})
+    
+    # Dataframe generation
+    #predictions_path = join(predictions_folder, batch_name + '_preds.csv')
+    #df = pd.read_csv(predictions_path, index_col = None)
+    #df = pd.merge(df, map_batch, on=['names'])
+    #df = remove_ppms(df)
+    
+    # Background generation
+    backgrounds_path = join(backgrounds_folder, batch_id + '_' + project_name + '.png')
+    
+    images_folder_batch = join(images_folder, batch_id)
+    image = map_of_images(df, xrange, yrange, images_folder_batch, backgrounds_path, zoom, fig_size)    
 
-        current_time = datetime.now().strftime("%H:%M:%S")
-        print('    (', current_time, ') - background computed: ', df['layer4x'].min(), df['layer4x'].max(), df['layer4y'].min(), df['layer4y'].max(), image.size[0], image.size[1])
+    current_time = datetime.now().strftime("%H:%M:%S")
+    print('    (', current_time, ') - background computed: ', df['layer4x'].min(), df['layer4x'].max(), df['layer4y'].min(), df['layer4y'].max(), image.size[0], image.size[1])
+    
+    # Scale + Thumbnail generation 
+    #thumbnails_path = join(thumbnails_folder, batch_name)
+    #if not exists(thumbnails_path):
+    #    mkdir(thumbnails_path)
         
-        # Scale + Thumbnail generation 
-        #thumbnails_path = join(thumbnails_folder, batch_name)
-        #if not exists(thumbnails_path):
-        #    mkdir(thumbnails_path)
-            
-        #thumbnails_samples_path = join(thumbnails_path, 'samples')
-        #if not exists(thumbnails_samples_path):
-        #    mkdir(thumbnails_samples_path)
+    #thumbnails_samples_path = join(thumbnails_path, 'samples')
+    #if not exists(thumbnails_samples_path):
+    #    mkdir(thumbnails_samples_path)
 
-        scales_path = join(images_folder, batch_name)
-        if not exists(scales_path):
-            mkdir(scales_path)
-            
-        scales_samples_path = join(scales_path, 'samples')
-        if not exists(scales_samples_path):
-            mkdir(scales_samples_path)
+#    scales_path = join(images_folder, batch_name)
+#    if not exists(scales_path):
+#        mkdir(scales_path)
         
-        #for index, row in df.iterrows():
-        #    img = row['names']
-        #    class_path = join(input_images_folder, row['Class'])
-        #    rescale(class_path, thumbnails_samples_path, img)
-        #    add_scale(class_path, scales_samples_path, img)
-        
-        current_time = datetime.now().strftime("%H:%M:%S")
-        print('    (', current_time, ') - images + thumbnails computed')
-        
-        create_csv(df, dataframes_folder, filename)
-        
-        current_time = datetime.now().strftime("%H:%M:%S")
-        print('    (', current_time, ') - CSV computed')
+#    scales_samples_path = join(scales_path, 'samples')
+#    if not exists(scales_samples_path):
+#        mkdir(scales_samples_path)
+    
+    #for index, row in df.iterrows():
+    #    img = row['names']
+    #    class_path = join(input_images_folder, row['Class'])
+    #    rescale(class_path, thumbnails_samples_path, img)
+    #    add_scale(class_path, scales_samples_path, img)
+    
+    current_time = datetime.now().strftime("%H:%M:%S")
+    print('    (', current_time, ') - images + thumbnails computed')
+    
+    create_csv(df, dataframes_folder, filename)
+    
+    current_time = datetime.now().strftime("%H:%M:%S")
+    print('    (', current_time, ') - CSV computed')

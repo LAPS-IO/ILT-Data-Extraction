@@ -6,6 +6,7 @@ from os import listdir
 from os.path import basename, isdir, join
 from features import get_model
 from projections import compute_projections
+from data import generate_data
 import pandas as pd
 
 def print_choices():
@@ -67,7 +68,8 @@ def main():
             batch_id = 'batch_{:04d}'.format(i)
             print('Processing', batch_id)
             features, path_images = compute_features(images_folder, batch_id, model, weights_path = '')
-            compute_projections(project_name, batch_id, features, path_images, df_batches) 
+            df = compute_projections(project_name, batch_id, features, path_images, df_batches) 
+            generate_data(df, images_folder, project_name, batch_id)
 
 if __name__ == '__main__':
    main()
