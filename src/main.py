@@ -7,7 +7,9 @@ def main():
     input_path = sys.argv[1]
 
     df_batches = create_batches(input_path)
+    print(df_batches)
     dataset_name = basename(input_path)
+    print(dataset_name)
     images_folder = move_images(input_path, df_batches, dataset_name)
     if len(images_folder) > 0: #images moved succesfully
         compute_features(images_folder, project_name = dataset_name, weights_path = '')
