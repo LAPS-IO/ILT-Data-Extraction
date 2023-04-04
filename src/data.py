@@ -112,10 +112,10 @@ def generate_data(df, images_folder, project_name, batch_id, range = 80):
 
 #    dataset_files = listdir(dataset_folder)
 
-    dataframes_folder = join(defaults['output'], project_name, defaults['dataframes'])
+    dataframes_folder = join(defaults['output_folder'], project_name, defaults['dataframes'])
     create_dir(dataframes_folder)
 
-    backgrounds_folder = join(defaults['output'], project_name, defaults['backgrounds'])
+    backgrounds_folder = join(defaults['output_folder'], project_name, defaults['backgrounds'])
     create_dir(backgrounds_folder)
         
     fig_size = 40

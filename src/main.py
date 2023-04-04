@@ -49,7 +49,7 @@ def main():
             project_name = input('Type the name of the project: \n')
         images_folder = join(defaults['output_folder'], project_name, defaults['images'])
         num_batches = len(listdir(images_folder))
-        print('Project', project_name, 'has', num_batches, 'batches.')
+        print(num_batches, 'batches', 'found in', project_name)
 
         batch_start = int(input('Type the number of the first batch to be processed: \n') )
         while batch_start <= 0 or batch_start > num_batches:
