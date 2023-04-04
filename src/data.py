@@ -143,9 +143,6 @@ def generate_data(df, images_folder, project_name, batch_id, range = 80):
     
     images_folder_batch = join(images_folder, batch_id)
     image = map_of_images(df, xrange, yrange, images_folder_batch, backgrounds_path, zoom, fig_size)    
-
-    current_time = datetime.now().strftime("%H:%M:%S")
-    print('    (', current_time, ') - background computed: ', df['layer4x'].min(), df['layer4x'].max(), df['layer4y'].min(), df['layer4y'].max(), image.size[0], image.size[1])
     
     # Scale + Thumbnail generation 
     #thumbnails_path = join(thumbnails_folder, batch_name)
@@ -170,10 +167,6 @@ def generate_data(df, images_folder, project_name, batch_id, range = 80):
     #    rescale(class_path, thumbnails_samples_path, img)
     #    add_scale(class_path, scales_samples_path, img)
     
-    current_time = datetime.now().strftime("%H:%M:%S")
-    print('    (', current_time, ') - images + thumbnails computed')
     
-    create_csv(df, dataframes_folder, filename)
+#    create_csv(df, dataframes_folder, filename)
     
-    current_time = datetime.now().strftime("%H:%M:%S")
-    print('    (', current_time, ') - CSV computed')
