@@ -58,7 +58,11 @@ def get_image(path, paint = False, color = (1, 1, 1), zoom=0.2, dim = 255):
     return OffsetImage(img, zoom=zoom)
 
 def map_of_images(df, xrange, yrange, images_folder, output_path, zoom, fig_size=40):
-    df_filtered = df[(df['x'] >= xrange[0]) & (df['x'] <= xrange[1]) & (df['y'] >= yrange[0]) & (df['y'] <= yrange[1])]
+    print(df)
+    df_x = pd.to_numeric(df['x'])
+    df_y = pd.to_numeric(df['y'])
+
+    df_filtered = df[(df_x >= xrange[0]) & (df_x <= xrange[1]) & (df_y >= yrange[0]) & (df_y <= yrange[1])]
     
     x = df_filtered['x']
     y = df_filtered['y']
