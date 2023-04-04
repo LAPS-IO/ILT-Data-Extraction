@@ -66,7 +66,6 @@ def map_of_images(df, xrange, yrange, images_folder, output_path, zoom, fig_size
     x = df_filtered['x']
     y = df_filtered['y']
     names = df_filtered['names']
-    classes = df_filtered['class']
     
     f = plt.figure(figsize=(fig_size, fig_size), frameon=False)
     ax = plt.Axes(f, [0., 0., 1., 1.])
@@ -74,8 +73,8 @@ def map_of_images(df, xrange, yrange, images_folder, output_path, zoom, fig_size
     f.add_axes(ax)
     ax.scatter(x, y, s=0) 
 
-    for xs, ys, c, name in zip(x, y, classes, names):
-        path = join(images_folder, c, name)
+    for xs, ys, name in zip(x, y, names):
+        path = join(images_folder, name)
 
         ab = AnnotationBbox(get_image(path, zoom=zoom), (xs, ys), frameon=False, box_alignment=(0, 1))
         ax.add_artist(ab)
