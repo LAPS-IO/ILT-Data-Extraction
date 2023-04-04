@@ -4,6 +4,7 @@ import pandas as pd
 import math
 from shutil import copy2
 from aux import defaults, create_dir
+import PIL
 
 # Input:
 # (1) input_path: a string containing the path to the input dataset
@@ -69,9 +70,15 @@ def move_images(input_path, df, dataset_name, debug=True):
             c = row['Class']
             batch_path = join(images_path, batch_id)
             create_dir(batch_path)
+            original_path = join(input_path, c, image_name)
 
-            copy2(join(input_path, c, image_name),
-                  join(batch_path, image_name))
+            try:
+                img = PIL.Image.open(original_path)
+                copy2(original_path, join(batch_path, image_name))
+
+            except PIL.UnidentifiedImageError:
+                print(original_path, 'is not a valid image')
+
             if (index + 1) % div == 0 and debug:
               print(str(index + 1) + '/' + str(df.shape[0]) + ' complete')
 
