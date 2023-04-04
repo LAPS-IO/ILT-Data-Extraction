@@ -26,7 +26,7 @@ def create_batches(input_path):
     num_batches = math.ceil(len(files)/defaults['BATCH_MAX_SIZE'])
     images_per_batch = math.ceil(len(files)/num_batches)
 
-    df = pd.DataFrame(list(zip(files, classes)), columns=['Image', 'Class'])
+    df = pd.DataFrame(list(zip(files, classes)), columns=['names', 'class'])
 
     df = df.sample(frac=1).reset_index(drop=True)
 
@@ -40,7 +40,7 @@ def create_batches(input_path):
         i += 1
     batches.extend(['batch_{:04d}'.format(i)] * count)
 
-    df['Batch'] = batches
+    df['batch'] = batches
     return df
 
 # Inputs:

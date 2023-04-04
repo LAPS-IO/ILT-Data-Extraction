@@ -6,6 +6,7 @@ from os import listdir
 from os.path import basename, isdir, join
 from features import get_model
 from projections import compute_projections
+import pandas as pd
 
 def print_choices():
     print('1: Create batches')
@@ -35,8 +36,10 @@ def main():
             input_path = input('Type the complete path to the folder with the images: \n')         
         else:            
             df_batches = create_batches(input_path)
-            dataset_name = basename(input_path)
-            move_images(input_path, df_batches, dataset_name)
+            project_name = basename(input_path)
+            move_images(input_path, df_batches, project_name)
+            df_batches.to_csv(join(defaults['output_folder'], project_name, 'batches.csv'), index=None)
+
     elif val == 2:
         list_projects = print_projects()
         project_name = input('Type the name of the project: \n') 
@@ -58,12 +61,13 @@ def main():
             batch_end = int(input('Type the number of the last batch to be processed: \n') )
 
         model = get_model()
+        df_batches = pd.read_csv(join(defaults['output_folder'], project_name, 'batches.csv'), index_col = None)
+
         for i in range(batch_start, batch_end + 1):
             batch_id = 'batch_{:04d}'.format(i)
             print('Processing', batch_id)
             features, path_images = compute_features(images_folder, batch_id, model, weights_path = '')
-            compute_projections(project_name, batch_id, features, path_images) 
-
+            compute_projections(project_name, batch_id, features, path_images, df_batches) 
 
 if __name__ == '__main__':
    main()

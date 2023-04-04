@@ -145,6 +145,7 @@ def compute_features(images_folder, batch_id, model, weights_path):
                     features = torch.vstack((features, aux))
                 
             paths = list(paths)
+            paths = [basename(path) for path in paths]
             preds = output.argmax(dim=1)
             preds_list = []
             for i in range(preds.shape[0]):

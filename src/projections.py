@@ -51,7 +51,7 @@ def opentsne_transform(features, base_tsne):
     
     return tsne_results
 
-def compute_projections(project_name, batch_id, features, path_images, base_tsne = None, compute_base = True):    
+def compute_projections(project_name, batch_id, features, path_images, df_batches, base_tsne = None, compute_base = True):    
     print('  Computing projections...')
     if compute_base:
         base_tsne = opentsne_fit(features)
@@ -66,7 +66,11 @@ def compute_projections(project_name, batch_id, features, path_images, base_tsne
     df_preds = pd.DataFrame(tsne_arr, columns =['names', 'x', 'y'])
     dataframes_folder = join(defaults['output_folder'], project_name, defaults['dataframes'])
     create_dir(dataframes_folder)
-    df_preds.to_csv(join(dataframes_folder, batch_id + '_' + project_name + '.csv'), index=None)
+
+    df_filtered = df_batches[df_batches['batch'] == batch_id]
+    df = pd.merge(df_preds, df_filtered, how = 'names')
+
+    df.to_csv(join(dataframes_folder, batch_id + '_' + project_name + '.csv'), index=None)
 
     print('  Projections computed.')
     
