@@ -123,9 +123,6 @@ def compute_features(images_folder, project_name = '', weights_path = ''):
     else:
         model.to(device)  ##important to do BEFORE loading the optimizer
         
-        
-    print(model)
-
     register_hooks(model)
 
     start = timer()
