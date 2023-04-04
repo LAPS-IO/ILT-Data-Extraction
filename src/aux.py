@@ -6,6 +6,7 @@ defaults = {
     'output': 'output',
     'images': 'images',
     'dataframes': 'dataframes',
+    'backgrounds': 'backgrounds',
     'root': dirname(getcwd()),
     'output_folder': '',
 }
