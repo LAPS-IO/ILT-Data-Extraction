@@ -57,7 +57,7 @@ def create_batches(input_path):
   #     inside the output directory. Returns False otherwise.
 
 
-def move_images(input_path, df, dataset_name, debug=True):
+def move_images(input_path, df, dataset_name, debug=True, check_valid = True):
     dataset_path = join(defaults['output_folder'], dataset_name)
     if create_dir(dataset_path, ignore=False):
         images_folder = join(dataset_path, defaults['images'])
@@ -72,12 +72,15 @@ def move_images(input_path, df, dataset_name, debug=True):
             create_dir(batch_folder)
             original_path = join(input_path, c, image_name)
 
-            try:
-                img = PIL.Image.open(original_path)
-                copy2(original_path, join(batch_folder, image_name))
+            if check_valid:
+                try:
+                    img = PIL.Image.open(original_path)
+                    copy2(original_path, join(batch_folder, image_name))
 
-            except PIL.UnidentifiedImageError:
-                print('Warning: ', original_path, 'is not a valid image')
+                except PIL.UnidentifiedImageError:
+                    print('Warning: ', original_path, 'is not a valid image')
+            else:
+                copy2(original_path, join(batch_folder, image_name))
 
             if (index + 1) % div == 0 and debug:
               print(str(index + 1) + '/' + str(df.shape[0]) + ' complete')

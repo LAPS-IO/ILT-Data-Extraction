@@ -68,7 +68,7 @@ def compute_projections(project_name, batch_id, features, path_images, df_batche
     create_dir(dataframes_folder)
 
     df_filtered = df_batches[df_batches['batch'] == batch_id]
-    df = pd.merge(df_preds, df_filtered, how = 'names')
+    df = pd.merge(df_preds, df_filtered, on = 'names')
 
     df.to_csv(join(dataframes_folder, batch_id + '_' + project_name + '.csv'), index=None)
 
