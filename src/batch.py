@@ -77,5 +77,5 @@ def move_images(input_path, df, dataset_name, debug=True):
 
         return images_path
     else:
-        print('Error! Folder ' + join(defaults['output'], dataset_name) + ' already exists!')
+        print('Error! Output folder ' + join(defaults['output'], dataset_name) + ' already exists!')
         return ''
