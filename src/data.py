@@ -15,8 +15,9 @@ from PIL import ImageDraw
 from aux import defaults, create_dir
 
 # generate dataframe
-def create_csv(df, dataframes_path, filename):        
-    df['names'] = df['names'].str.replace('png', 'jpg')
+def create_csv(df, csv_path):        
+    #df['names'] = df['names'].str.replace('png', 'jpg')
+    df = df.rename(columns={'class': 'correct_label'})
     
     labels = df['correct_label'].tolist()
     df['correct_label'] = ['_' + l for l in labels]
@@ -26,7 +27,6 @@ def create_csv(df, dataframes_path, filename):
     map_color = {}
     for i in range(len(classes)):
         map_color[classes[i]] = i+1
-
     
     df['manual_label'] = df['correct_label']
     list_colors = [map_color[c] for c in df['manual_label'].tolist()]
@@ -36,11 +36,15 @@ def create_csv(df, dataframes_path, filename):
     df['y2'] = [0] * df.shape[0]
     df['x3'] = [0] * df.shape[0]
     df['y3'] = [0] * df.shape[0]
+    df['D1'] = [0] * df.shape[0]
+    df['D4'] = [0] * df.shape[0]
+    df['D7'] = [0] * df.shape[0]
+    
     df['thumbnails'] = df['names']
     
 #    df = df.rename(columns={'layer1': 'D1', 'layer2': 'D4', 'layer3': 'D7', 'layer4x': 'x', 'layer4y': 'y'})
     
-    df.to_csv(join(dataframes_path, filename + '.csv'), index = False)
+    df.to_csv(csv_path, index = False)
 
 
 ## generate backgrounds
@@ -84,6 +88,7 @@ def map_of_images(df, xrange, yrange, images_folder, output_path, zoom, fig_size
 
     ax.set_xlim(xrange)
     ax.set_ylim(yrange)
+    print(output_path)
     f.savefig(output_path, bbox_inches='tight', pad_inches = 0, dpi=100)
     
     plt.cla()
@@ -116,9 +121,11 @@ def generate_data(df, images_folder, project_name, batch_id, range = 80):
 
     dataframes_folder = join(defaults['output_folder'], project_name, defaults['dataframes'])
     create_dir(dataframes_folder)
+    print(dataframes_folder)
 
     backgrounds_folder = join(defaults['output_folder'], project_name, defaults['backgrounds'])
     create_dir(backgrounds_folder)
+    print(backgrounds_folder)
         
     fig_size = 40
     factor = 2 #default 2 tsne, 20 umap
@@ -167,6 +174,6 @@ def generate_data(df, images_folder, project_name, batch_id, range = 80):
     #    rescale(class_path, thumbnails_samples_path, img)
     #    add_scale(class_path, scales_samples_path, img)
     
-    
-#    create_csv(df, dataframes_folder, filename)
+    csv_path = join(dataframes_folder, batch_id + '_' + project_name + '.csv')
+    create_csv(df, csv_path)
     
