@@ -41,7 +41,7 @@ def main():
         project_name = input('Type the name of the project: \n') 
         while project_name not in list_projects:
             print('Error! Project', project_name, 'does not exist.')
-            input_path = input('Type the name of the project: \n')
+            project_name = input('Type the name of the project: \n')
         input_path = join(defaults['output_path'], project_name)
         images_path = join(input_path, defaults['images'])
         num_batches = len(listdir(input_path))
@@ -55,7 +55,7 @@ def main():
         batch_end = int(input('Type the number of the last batch to be processed: \n') )
         while batch_end <= 0 or batch_end > num_batches:
             print('Error! Batch', batch_end,'does not exist.')
-            batch_start = int(input('Type the number of the last batch to be processed: \n') )
+            batch_end = int(input('Type the number of the last batch to be processed: \n') )
 
         compute_features(images_path, batch_start, batch_end, weights_path = '')
 
