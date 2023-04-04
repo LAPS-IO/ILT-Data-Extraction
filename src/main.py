@@ -43,9 +43,8 @@ def main():
         while project_name not in list_projects:
             print('Error! Project', project_name, 'does not exist.')
             project_name = input('Type the name of the project: \n')
-        input_path = join(defaults['output_folder'], project_name)
-        images_folder = defaults['images_folder']
-        num_batches = len(listdir(input_path))
+        images_folder = join(defaults['output_folder'], project_name, defaults['images'])
+        num_batches = len(listdir(images_folder))
         print('Project', project_name, 'has', num_batches, 'batches.')
 
         batch_start = int(input('Type the number of the first batch to be processed: \n') )

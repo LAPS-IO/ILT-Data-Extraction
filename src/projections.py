@@ -2,7 +2,7 @@ import openTSNE
 import sklearn.manifold
 import numpy as np
 import pandas as pd
-from aux import defaults
+from aux import defaults, create_dir
 from os.path import join
 
 def tsne_fit(features, n=1):
@@ -63,4 +63,6 @@ def compute_projections(project_name, batch_id, features, path_images, base_tsne
     tsne_arr = np.hstack((path_images, projection))
 
     df_preds = pd.DataFrame(tsne_arr, columns =['names', 'layer1', 'layer2', 'layer3', 'layer4x', 'layer4y', 'correct_label'])
-    df_preds.to_csv(join(defaults['dataframes_folder'], 'batch_{:04d}_{}.csv'.format(batch_id, project_name)), index=None)
+    dataframes_folder = join(defaults['output_folder'], project_name, defaults['dataframes'])
+    create_dir(dataframes_folder)
+    df_preds.to_csv(dataframes_folder, 'batch_{:04d}_{}.csv'.format(batch_id, project_name), index=None)

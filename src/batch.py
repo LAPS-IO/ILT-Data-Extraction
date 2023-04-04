@@ -60,7 +60,7 @@ def create_batches(input_path):
 def move_images(input_path, df, dataset_name, debug=True):
     dataset_path = join(defaults['output_folder'], dataset_name)
     if create_dir(dataset_path, ignore=False):
-        images_folder = defaults['images_folder']
+        images_folder = join(dataset_path, defaults['images'])
         create_dir(images_folder)
         print('Copying images to ' + dataset_path)
         div = df.shape[0]//10
