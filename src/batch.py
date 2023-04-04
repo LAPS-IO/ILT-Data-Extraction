@@ -57,7 +57,7 @@ def create_batches(input_path):
 
 
 def move_images(input_path, df, dataset_name, debug=True):
-    dataset_path = join(defaults['output'], dataset_name)
+    dataset_path = join(defaults['output_path'], dataset_name)
     if create_dir(dataset_path, ignore=False):
         images_path = join(dataset_path, defaults['images'])
         create_dir(images_path)
@@ -77,5 +77,5 @@ def move_images(input_path, df, dataset_name, debug=True):
 
         return images_path
     else:
-        print('Error! Output folder ' + join(defaults['output'], dataset_name) + ' already exists!')
+        print('Error! Output folder ' + join(defaults['output_path'], dataset_name) + ' already exists!')
         return ''

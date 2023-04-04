@@ -3,10 +3,19 @@ from os.path import exists, join, dirname
 
 defaults = {
     'BATCH_MAX_SIZE': 8000,
-    'output': join(dirname(getcwd()), 'output'),
-    'images': 'images'
-
+    'output': 'output',
+    'images': 'images',
+    'root': dirname(getcwd()),
+    'output_path': '',
+    'images_path': '',
 }
+
+def update_defaults():
+  defaults['output_path'] = join(defaults['root'], defaults['output'])
+  defaults['images_path'] = join(defaults['output'], defaults['images'])
+
+update_defaults()
+
 
 # Input:
   # (1) path: a string containing a path
