@@ -14,7 +14,7 @@ def choose_option():
     while(val not in ['1', '2', '3']):
         print(val, 'is not a valid choice.')
         val = input('Choose an option: \n') 
-    return val
+    return int(val)
 
 def main():
     val = choose_option()
