@@ -17,7 +17,7 @@ def choose_option():
     return val
 
 def main():
-    val = choose_option
+    val = choose_option()
     if val == 1:
         input_path = input('Type the complete path to the folder with the images: \n') 
         while not isdir(input_path):
