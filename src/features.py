@@ -25,6 +25,8 @@ from PIL import Image
 #import time
 from aux import create_dir
 
+activation = {}
+
 def seed_everything(seed):
     random.seed(seed)
     environ['PYTHONHASHSEED'] = str(seed)
@@ -74,7 +76,7 @@ def get_model():
     model = convnext_tiny(weights = ConvNeXt_Tiny_Weights.IMAGENET1K_V1)    
     return model
 
-def register_hooks(model):
+def register_hooks(model,):
     model.features[3][2].block[5].register_forward_hook(get_activation('layer1'))
     model.features[5][8].block[5].register_forward_hook(get_activation('layer2'))
     model.features[7][2].block[5].register_forward_hook(get_activation('layer3'))
@@ -89,6 +91,8 @@ def register_hooks(model):
   #                   if not provided, loads weights from the ImageNet)
 # Output:
 def compute_features(images_folder, batch_start, batch_end, weights_path = ''):
+    global activation
+
     print('Computing features.')
     batch_size = 32
     device = 'cuda'

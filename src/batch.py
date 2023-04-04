@@ -77,11 +77,12 @@ def move_images(input_path, df, dataset_name, debug=True):
                 copy2(original_path, join(batch_path, image_name))
 
             except PIL.UnidentifiedImageError:
-                print(original_path, 'is not a valid image')
+                print('Warning: ', original_path, 'is not a valid image')
 
             if (index + 1) % div == 0 and debug:
               print(str(index + 1) + '/' + str(df.shape[0]) + ' complete')
 
+        print('Finished copying the images.')
         return images_path
     else:
         print('Error! Output folder ' + join(defaults['output_path'], dataset_name) + ' already exists!')

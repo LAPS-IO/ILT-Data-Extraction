@@ -57,7 +57,7 @@ def main():
             print('Error! Batch', batch_end,'does not exist.')
             batch_end = int(input('Type the number of the last batch to be processed: \n') )
 
-        compute_features(images_path, batch_start, batch_end, weights_path = '')
+#        compute_features(images_path, batch_start, batch_end, weights_path = '')
 
 if __name__ == '__main__':
    main()
