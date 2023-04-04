@@ -88,7 +88,7 @@ def register_hooks(model):
   # (3) weights_path: a string with the path to the weights to load (optional,
   #                   if not provided, loads weights from the ImageNet)
 # Output:
-def compute_features(images_folder, project_name, batch_start, batch_end, weights_path = ''):
+def compute_features(images_folder, batch_start, batch_end, weights_path = ''):
     print('Computing features.')
     batch_size = 32
     device = 'cuda'
