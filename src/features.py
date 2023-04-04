@@ -17,7 +17,7 @@ from os import listdir, environ
 #from sklearn.model_selection import train_test_split
 #import glob
 from timeit import default_timer as timer
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 from PIL import Image
 #import json
 #import openTSNE
@@ -128,6 +128,7 @@ def compute_features(images_folder, batch_start, batch_end, weights_path = ''):
 
     for i in range(batch_start, batch_end + 1):
         batch_id = 'batch_{:04d}'.format(i)
+        print(batch_id)
         activation = {}
             
         test_list = [join(images_folder, batch_id, l) for l in listdir(join(images_folder, batch_id))]
