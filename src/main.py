@@ -13,6 +13,7 @@ def print_choices():
 def print_projects():
     output_path = defaults['output']
     projects = [f for f in listdir(output_path) if isdir(join(output_path, f))]
+    print('List of projects:')
     print(projects)
     return projects
 
@@ -34,7 +35,7 @@ def main():
         else:            
             df_batches = create_batches(input_path)
             dataset_name = basename(input_path)
-            images_folder = move_images(input_path, df_batches, dataset_name)
+            move_images(input_path, df_batches, dataset_name)
     elif val == 2:
         list_projects = print_projects()
         project_name = input('Type the name of the project: \n') 
@@ -42,7 +43,20 @@ def main():
             print('Error! Project', project_name, 'does not exist.')
             input_path = input('Type the name of the project: \n')
         input_path = join(defaults['output'], project_name) 
-        compute_features(input_path, project_name, weights_path = '')
+        num_batches = len(listdir(input_path))
+        print('Project', project_name, 'has', num_batches, 'batches.')
+
+        batch_start = int(input('Type the number of the first batch to be processed: \n') )
+        while batch_start <= 0 or batch_start > num_batches:
+            print('Error! Batch', batch_start,'does not exist.')
+            batch_start = int(input('Type the number of the first batch to be processed: \n') )
+
+        batch_end = int(input('Type the number of the last batch to be processed: \n') )
+        while batch_end <= 0 or batch_end > num_batches:
+            print('Error! Batch', batch_end,'does not exist.')
+            batch_start = int(input('Type the number of the last batch to be processed: \n') )
+
+        compute_features(input_path, batch_start, batch_end, weights_path = '')
 
 if __name__ == '__main__':
    main()

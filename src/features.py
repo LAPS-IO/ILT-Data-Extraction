@@ -2,32 +2,32 @@ import torch
 import torch.nn as nn
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+#import matplotlib.pyplot as plt
+#import plotly.graph_objects as go
+#from plotly.subplots import make_subplots
 import torchvision.transforms as transforms
-import torchvision.datasets as datasets
+#import torchvision.datasets as datasets
 from torch.utils.data import DataLoader, Dataset
 from os.path import join, basename, exists
 from torchvision.models import resnet50, ResNet50_Weights, convnext_tiny, ConvNeXt_Tiny_Weights, vit_b_16, ViT_B_16_Weights, swin_t, Swin_T_Weights
 import torch.optim as optim
-from torch.optim.lr_scheduler import StepLR
+#from torch.optim.lr_scheduler import StepLR
 import random
-import os
-from os import mkdir
+from os import listdir, environ
 #from sklearn.model_selection import train_test_split
-import glob
+#import glob
 from timeit import default_timer as timer
 from tqdm.notebook import tqdm
 from PIL import Image
-import json
+#import json
 #import openTSNE
 #import sklearn.manifold
-import time
+#import time
+from aux import create_dir
 
 def seed_everything(seed):
     random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    environ['PYTHONHASHSEED'] = str(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
@@ -88,20 +88,17 @@ def register_hooks(model):
   # (3) weights_path: a string with the path to the weights to load (optional,
   #                   if not provided, loads weights from the ImageNet)
 # Output:
-def compute_features(images_folder, project_name = '', weights_path = ''):
-    print('Hi')
+def compute_features(images_folder, project_name, batch_start, batch_end, weights_path = ''):
+    print('Computing features.')
     batch_size = 32
     device = 'cuda'
-    if project_name == '':
-        project_name = basename(images_folder)
 
     lr = 3e-5
-    gamma = 0.7
+#    gamma = 0.7
     seed = 0
-    start_batch = 9999 #note: 1 is always added
-    end_batch = 10000
 
     output_path = join(images_folder, 'predictions')
+    create_dir(output_path)
     seed_everything(seed)
     test_transform = get_transforms()
 
@@ -125,40 +122,40 @@ def compute_features(images_folder, project_name = '', weights_path = ''):
         
     register_hooks(model)
 
-    start = timer()
-
-    activation = {}
-        
-    test_list = []
-    test_data = ILTDataset(test_list, transform=test_transform)
-    test_loader = DataLoader(dataset = test_data, batch_size=batch_size, shuffle=False)
-
-    images_path = []
-    predictions = []
-    features = None
-
-    with torch.no_grad():
-        for data, paths in tqdm(test_loader):
-            data = data.to(device)
+    for i in range(batch_start, batch_end + 1):
+        batch_id = 'batch_{:04d}'.format(i)
+        activation = {}
             
-            with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=use_amp):
-                output = model(data)
-                if features is None:
-                    features = torch.amax(activation['layer4'], (2, 3))
-                else:
-                    aux = torch.amax(activation['layer4'], (2, 3))
-                    features = torch.vstack((features, aux))
+        test_list = listdir(join(images_folder, batch_id))
+        test_data = ILTDataset(test_list, transform=test_transform)
+        test_loader = DataLoader(dataset = test_data, batch_size=batch_size, shuffle=False)
+
+        images_path = []
+        predictions = []
+        features = None
+
+        with torch.no_grad():
+            for data, paths in tqdm(test_loader):
+                data = data.to(device)
                 
-            paths = list(paths)
-            preds = output.argmax(dim=1)
-            preds_list = []
-            for i in range(preds.shape[0]):
-                preds_list.append(preds[i].item())
-                paths[i] = basename(paths[i])
-            predictions.extend(preds_list)
-            images_path.extend(paths)
-    
-    features = features.cpu().detach().numpy()
+                with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=use_amp):
+                    output = model(data)
+                    if features is None:
+                        features = torch.amax(activation['layer4'], (2, 3))
+                    else:
+                        aux = torch.amax(activation['layer4'], (2, 3))
+                        features = torch.vstack((features, aux))
+                    
+                paths = list(paths)
+                preds = output.argmax(dim=1)
+                preds_list = []
+                for i in range(preds.shape[0]):
+                    preds_list.append(preds[i].item())
+                    paths[i] = basename(paths[i])
+                predictions.extend(preds_list)
+                images_path.extend(paths)
+        
+        features = features.cpu().detach().numpy()
 
     return features, paths
     
