@@ -5,14 +5,17 @@ defaults = {
     'BATCH_MAX_SIZE': 8000,
     'output': 'output',
     'images': 'images',
+    'dataframes': 'dataframes',
     'root': dirname(getcwd()),
-    'output_path': '',
-    'images_path': '',
+    'output_folder': '',
+    'images_folder': '',
+    'dataframes_folder': ''
 }
 
 def update_defaults():
-  defaults['output_path'] = join(defaults['root'], defaults['output'])
-  defaults['images_path'] = join(defaults['output'], defaults['images'])
+  defaults['output_folder'] = join(defaults['root'], defaults['output'])
+  defaults['images_folder'] = join(defaults['output'], defaults['images'])
+  defaults['dataframes_foleder'] = join(defaults['output'], defaults['dataframes'])
 
 update_defaults()
 

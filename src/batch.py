@@ -58,23 +58,23 @@ def create_batches(input_path):
 
 
 def move_images(input_path, df, dataset_name, debug=True):
-    dataset_path = join(defaults['output_path'], dataset_name)
+    dataset_path = join(defaults['output_folder'], dataset_name)
     if create_dir(dataset_path, ignore=False):
-        images_path = join(dataset_path, defaults['images'])
-        create_dir(images_path)
+        images_folder = defaults['images_folder']
+        create_dir(images_folder)
         print('Copying images to ' + dataset_path)
         div = df.shape[0]//10
         for index, row in df.iterrows():
             image_name = row['Image']
             batch_id = row['Batch']
             c = row['Class']
-            batch_path = join(images_path, batch_id)
-            create_dir(batch_path)
+            batch_folder = join(images_folder, batch_id)
+            create_dir(batch_folder)
             original_path = join(input_path, c, image_name)
 
             try:
                 img = PIL.Image.open(original_path)
-                copy2(original_path, join(batch_path, image_name))
+                copy2(original_path, join(batch_folder, image_name))
 
             except PIL.UnidentifiedImageError:
                 print('Warning: ', original_path, 'is not a valid image')
@@ -83,7 +83,7 @@ def move_images(input_path, df, dataset_name, debug=True):
               print(str(index + 1) + '/' + str(df.shape[0]) + ' complete')
 
         print('Finished copying the images.')
-        return images_path
+        return images_folder
     else:
-        print('Error! Output folder ' + join(defaults['output_path'], dataset_name) + ' already exists!')
+        print('Error! Output folder ' + join(defaults['output_folder'], dataset_name) + ' already exists!')
         return ''

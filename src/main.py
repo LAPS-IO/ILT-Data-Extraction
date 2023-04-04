@@ -4,15 +4,16 @@ from aux import defaults
 from features import compute_features 
 from os import listdir
 from os.path import basename, isdir, join
+from features import get_model
+from projections import compute_projections
 
 def print_choices():
     print('1: Create batches')
-    print('2: Extract features')
-    print('3: Compute backgrounds and dataframes')
+    print('2: Extract data from batches')
 
 def print_projects():
-    output_path = defaults['output_path']
-    projects = [f for f in listdir(output_path) if isdir(join(output_path, f))]
+    output_folder = defaults['output_folder']
+    projects = [f for f in listdir(output_folder) if isdir(join(output_folder, f))]
     print('List of projects:')
     print(projects)
     return projects
@@ -42,8 +43,8 @@ def main():
         while project_name not in list_projects:
             print('Error! Project', project_name, 'does not exist.')
             project_name = input('Type the name of the project: \n')
-        input_path = join(defaults['output_path'], project_name)
-        images_path = join(input_path, defaults['images'])
+        input_path = join(defaults['output_folder'], project_name)
+        images_folder = defaults['images_folder']
         num_batches = len(listdir(input_path))
         print('Project', project_name, 'has', num_batches, 'batches.')
 
@@ -57,7 +58,13 @@ def main():
             print('Error! Batch', batch_end,'does not exist.')
             batch_end = int(input('Type the number of the last batch to be processed: \n') )
 
-        compute_features(images_path, batch_start, batch_end, weights_path = '')
+        model = get_model()
+        for i in range(batch_start, batch_end + 1):
+            batch_id = 'batch_{:04d}'.format(i)
+            print('Processing', batch_id)
+            features, path_images = compute_features(images_folder, batch_id, model, weights_path = '')
+            compute_projections(project_name, batch_id, features, path_images) 
+
 
 if __name__ == '__main__':
    main()

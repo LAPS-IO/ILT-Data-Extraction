@@ -23,7 +23,6 @@ from PIL import Image
 #import openTSNE
 #import sklearn.manifold
 #import time
-from aux import create_dir
 
 activation = {}
 
@@ -90,10 +89,10 @@ def register_hooks(model,):
   # (3) weights_path: a string with the path to the weights to load (optional,
   #                   if not provided, loads weights from the ImageNet)
 # Output:
-def compute_features(images_folder, batch_start, batch_end, weights_path = ''):
+def compute_features(images_folder, batch_id, model, weights_path):
     global activation
 
-    print('Computing features.')
+    print('  Computing features...')
     batch_size = 32
     device = 'cuda'
 
@@ -101,12 +100,9 @@ def compute_features(images_folder, batch_start, batch_end, weights_path = ''):
 #    gamma = 0.7
     seed = 0
 
-    output_path = join(images_folder, 'predictions')
-    create_dir(output_path)
     seed_everything(seed)
     test_transform = get_transforms()
 
-    model = get_model()
     freeze_bn(model)
         
     optimizer = optim.Adam(model.parameters(), lr=lr)
@@ -126,53 +122,52 @@ def compute_features(images_folder, batch_start, batch_end, weights_path = ''):
         
     register_hooks(model)
 
-    for i in range(batch_start, batch_end + 1):
-        batch_id = 'batch_{:04d}'.format(i)
-        print(batch_id)
-        activation = {}
+    activation = {}
+        
+    test_list = [join(images_folder, batch_id, l) for l in listdir(join(images_folder, batch_id))]
+    test_data = ILTDataset(test_list, transform=test_transform)
+    test_loader = DataLoader(dataset = test_data, batch_size=batch_size, shuffle=False)
+
+    images_path = []
+    predictions = []
+    features = None
+
+    with torch.no_grad():
+        for data, paths in tqdm(test_loader):
+            data = data.to(device)
             
-        test_list = [join(images_folder, batch_id, l) for l in listdir(join(images_folder, batch_id))]
-        test_data = ILTDataset(test_list, transform=test_transform)
-        test_loader = DataLoader(dataset = test_data, batch_size=batch_size, shuffle=False)
-
-        images_path = []
-        predictions = []
-        features = None
-
-        with torch.no_grad():
-            for data, paths in tqdm(test_loader):
-                data = data.to(device)
+            with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=use_amp):
+                output = model(data)
+                if features is None:
+                    features = torch.amax(activation['layer4'], (2, 3))
+                else:
+                    aux = torch.amax(activation['layer4'], (2, 3))
+                    features = torch.vstack((features, aux))
                 
-                with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=use_amp):
-                    output = model(data)
-                    if features is None:
-                        features = torch.amax(activation['layer4'], (2, 3))
-                    else:
-                        aux = torch.amax(activation['layer4'], (2, 3))
-                        features = torch.vstack((features, aux))
-                    
-                paths = list(paths)
-                preds = output.argmax(dim=1)
-                preds_list = []
-                for i in range(preds.shape[0]):
-                    preds_list.append(preds[i].item())
-                    paths[i] = basename(paths[i])
-                predictions.extend(preds_list)
-                images_path.extend(paths)
+            paths = list(paths)
+            preds = output.argmax(dim=1)
+            preds_list = []
+            for i in range(preds.shape[0]):
+                preds_list.append(preds[i].item())
+                paths[i] = basename(paths[i])
+            predictions.extend(preds_list)
+            images_path.extend(paths)
         
         features = features.cpu().detach().numpy()
 
+#        arr_files = np.array(images_path).reshape(len(images_path), -1)
+#        arr = np.hstack([arr_files, features])
+#        cs = ['names']
+#        for i in range(features.shape[1]):
+#            cs.append('f_' + str(i+1))
+#        df_features = pd.DataFrame(arr, columns = cs)
+#        df_features.to_csv(join(predictions_path, batch_id + '.csv'), index=None)
+
     return features, paths
     
-    arr_files = np.array(images_path).reshape(len(images_path), -1)
-    arr = np.hstack([arr_files, features])
-    cs = ['names']
-    for i in range(features.shape[1]):
-        cs.append('f_' + str(i+1))
-    df_features = pd.DataFrame(arr, columns = cs)
-    df_features
+    
 
-#    df_features.to_csv('features.csv', index=None)
+#    
 
     cur = timer()
     time_diff = cur - start
