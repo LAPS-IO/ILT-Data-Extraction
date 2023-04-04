@@ -66,7 +66,7 @@ def compute_projections(project_name, batch_id, features, path_images, base_tsne
     df_preds = pd.DataFrame(tsne_arr, columns =['names', 'x', 'y'])
     dataframes_folder = join(defaults['output_folder'], project_name, defaults['dataframes'])
     create_dir(dataframes_folder)
-    df_preds.to_csv(dataframes_folder, 'batch_{:04d}_{}.csv'.format(batch_id, project_name), index=None)
+    df_preds.to_csv(join(dataframes_folder, batch_id + '_' + project_name + '.csv'), index=None)
 
     print('  Projections computed.')
     
