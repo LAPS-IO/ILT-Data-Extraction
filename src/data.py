@@ -9,9 +9,8 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from PIL import Image
 from math import ceil, floor
 
-from PIL import Image
-from PIL import ImageFont
-from PIL import ImageDraw 
+#from PIL import ImageFont
+#from PIL import ImageDraw 
 from aux import defaults, create_dir
 
 # generate dataframe
@@ -113,7 +112,7 @@ def rescale(input_path, output_path, img_name):
     cv2.imwrite(output_name, resized)
 
 
-def generate_data(df, images_folder, project_name, batch_id, range = 80):
+def generate_data(df, images_folder, project_name, batch_id, range = 100):
     print('Generating background...')
     #match = 'last_after_p2'
 
@@ -148,7 +147,7 @@ def generate_data(df, images_folder, project_name, batch_id, range = 80):
     # Background generation
     backgrounds_path = join(backgrounds_folder, batch_id + '_' + project_name + '.png')
     
-    images_folder_batch = join(images_folder, batch_id)
+    images_folder_batch = join(images_folder, batch_id, defaults['inner_folder'])
     image = map_of_images(df, xrange, yrange, images_folder_batch, backgrounds_path, zoom, fig_size)    
     
     # Scale + Thumbnail generation 

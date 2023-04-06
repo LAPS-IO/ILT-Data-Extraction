@@ -62,14 +62,18 @@ def move_images(input_path, df, dataset_name, debug=True, check_valid = True):
     if create_dir(dataset_path, ignore=False):
         images_folder = join(dataset_path, defaults['images'])
         create_dir(images_folder)
+        
         print('Copying images to ' + dataset_path)
         div = df.shape[0]//10
         for index, row in df.iterrows():
             image_name = row['names']
             batch_id = row['batch']
             c = row['class']
-            batch_folder = join(images_folder, batch_id)
+            batch_outer_folder = join(images_folder, batch_id)
+            create_dir(batch_outer_folder)
+            batch_folder = join(batch_outer_folder, defaults['inner_folder'])
             create_dir(batch_folder)
+
             original_path = join(input_path, c, image_name)
 
             if check_valid:

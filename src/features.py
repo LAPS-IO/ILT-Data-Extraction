@@ -16,13 +16,14 @@ import random
 from os import listdir, environ
 #from sklearn.model_selection import train_test_split
 #import glob
-from timeit import default_timer as timer
+#from timeit import default_timer as timer
 from tqdm import tqdm
 from PIL import Image
 #import json
 #import openTSNE
 #import sklearn.manifold
 #import time
+from aux import defaults
 
 activation = {}
 
@@ -124,7 +125,7 @@ def compute_features(images_folder, batch_id, model, weights_path):
 
     activation = {}
         
-    test_list = [join(images_folder, batch_id, l) for l in listdir(join(images_folder, batch_id))]
+    test_list = [join(images_folder, batch_id, l, defaults['inner_folder']) for l in listdir(join(images_folder, batch_id))]
     test_data = ILTDataset(test_list, transform=test_transform)
     test_loader = DataLoader(dataset = test_data, batch_size=batch_size, shuffle=False)
 
@@ -165,10 +166,3 @@ def compute_features(images_folder, batch_id, model, weights_path):
 #        df_features.to_csv(join(predictions_path, batch_id + '.csv'), index=None)
 
     return features, path_images
-    
-    
-
-#    
-
-    cur = timer()
-    time_diff = cur - start

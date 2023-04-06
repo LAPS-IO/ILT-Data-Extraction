@@ -9,6 +9,7 @@ defaults = {
     'backgrounds': 'backgrounds',
     'root': dirname(getcwd()),
     'output_folder': '',
+    'inner_folder': 'samples'
 }
 
 def update_defaults():
