@@ -7,9 +7,13 @@ defaults = {
     'images': 'images',
     'dataframes': 'dataframes',
     'backgrounds': 'backgrounds',
+    'thumbnails': 'thumbnails',
     'root': dirname(getcwd()),
     'output_folder': '',
-    'inner_folder': 'samples'
+    'inner_folder': 'samples',
+    'thumbnails_size': 100,
+    'pixel_size': 12.87,
+    'ruler_ratio': 0.5
 }
 
 def update_defaults():

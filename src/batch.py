@@ -57,7 +57,7 @@ def create_batches(input_path):
   #     inside the output directory. Returns False otherwise.
 
 
-def move_images(input_path, df, dataset_name, debug=True, check_valid = True):
+def move_images(input_path, df, dataset_name, debug=True, check_valid = False):
     dataset_path = join(defaults['output_folder'], dataset_name)
     if create_dir(dataset_path, ignore=False):
         images_folder = join(dataset_path, defaults['images'])

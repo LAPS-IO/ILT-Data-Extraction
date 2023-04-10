@@ -7,7 +7,10 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from PIL import Image
+from PIL import ImageFont
+from PIL import ImageDraw 
 from math import ceil, floor
+from aux import defaults
 
 #from PIL import ImageFont
 #from PIL import ImageDraw 
@@ -99,17 +102,62 @@ def map_of_images(df, xrange, yrange, images_folder, output_path, zoom, fig_size
 
     return image
 
+def add_scale(input_path, img_name):
+    for img_name in listdir(input_path):
+        img = cv2.imread(join(input_path, img_name))
+        img_out = np.zeros([img.shape[0] + 30, img.shape[1] + 20, 3])
+        img_out = 255-img_out
+        
+        img_out[10:img.shape[0]+10,10:img.shape[1]+10] = img
+        units = defaults['pixel_size'] * img.shape[1] * defaults['ruler_ratio']
+        units = int(round(units/100))
+        
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        size = 100*units
+        if size > 900:
+            size = 1000
+        ruler_size = int(round(size/defaults['pixel_size']))
+
+        img_out = Image.fromarray(np.uint8(img_out)).convert('RGB')
+        draw = ImageDraw.Draw(img_out)
+
+        if size < 1000:
+            text = str(size) + ' µm'
+        else:
+            text = str(int(size/1000)) + ' mm'
+        draw.text((12, img.shape[0] + 12), text,(0, 0, 0))
+        
+        shape = [(10, img.shape[0] + 25), (ruler_size + 10, img.shape[0] + 25)]
+        draw.line(shape, fill = 'black', width = 1)
+
+        shape = [(10, img.shape[0] + 23), (10, img.shape[0] + 27)]
+        draw.line(shape, fill = 'black', width = 1)
+
+        shape = [(ruler_size + 10, img.shape[0] + 23), (ruler_size + 10, img.shape[0] + 27)]
+        draw.line(shape, fill = 'black', width = 1)
+
+        img_out.save(join(input_path, img_name))
+
 ## rescale image for thumbnails
-def rescale(input_path, output_path, img_name):
-    img = cv2.imread(join(input_path, img_name))
-    if img.shape[0] > 100:
-        scale = img.shape[0]/100
-        dims = (int(img.shape[1]/scale),int(img.shape[0]/scale))
-        resized = cv2.resize(img, dims, interpolation = cv2.INTER_AREA)
-    else:
-        resized = img
-    output_name = join(output_path, img_name[:-4] + '.jpg')
-    cv2.imwrite(output_name, resized)
+def generate_thumbnails(input_path, thumbnails_folder, batch_id, max_size):
+    create_dir(thumbnails_folder)
+
+    thumbnails_path = join(thumbnails_folder, batch_id)
+    create_dir(thumbnails_path)
+    
+    inner_path = join(thumbnails_path, defaults['inner_folder'])
+    create_dir(inner_path)
+
+    for img_name in listdir(input_path):
+        img = cv2.imread(join(input_path, img_name))
+        if img.shape[0] > max_size:
+            scale = img.shape[0]/max_size
+            dims = (int(img.shape[1]/scale),int(img.shape[0]/scale))
+            resized = cv2.resize(img, dims, interpolation = cv2.INTER_AREA)
+        else:
+            resized = img
+        output_name = join(inner_path, img_name[:-4] + '.jpg')
+        cv2.imwrite(output_name, resized)
 
 
 def generate_data(df, images_folder, project_name, batch_id, range = 100):
