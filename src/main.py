@@ -77,12 +77,17 @@ def main():
         project_name = choose_project()
         weights_path = input('Type the complete path to the trained model (or press Enter to load the default weights): ') 
 
+        if len(weights_path) > 0 not exists(weights_path):
+            print('Error! Model not found')
+        else:
+            model = get_model(load = True, num_classes = defaults['num_classes'])
+
+
         images_folder = join(defaults['output_folder'], project_name, defaults['images'])
 
         batch_start = choose_batch_start(project_name, images_folder)
         batch_end = choose_batch_end(images_folder, batch_start)
 
-        model = get_model()
         df_batches = pd.read_csv(join(defaults['output_folder'], project_name, 'batches.csv'), index_col = None)
 
         base_id = defaults['base_tsne_id']

@@ -72,8 +72,10 @@ def get_activation(name):
         activation[name] = output.detach()
     return hook
 
-def get_model():
-    model = convnext_tiny(weights = ConvNeXt_Tiny_Weights.IMAGENET1K_V1)    
+def get_model(load = False, num_classes = 1000):
+    model = convnext_tiny(weights = ConvNeXt_Tiny_Weights.IMAGENET1K_V1)   
+    if load:
+        model.classifier[2] = nn.Linear(768, num_classes)   
     return model
 
 def register_hooks(model,):
