@@ -9,7 +9,7 @@ import torchvision.transforms as transforms
 #import torchvision.datasets as datasets
 from torch.utils.data import DataLoader, Dataset
 from os.path import join, basename, exists
-from torchvision.models import resnet50, ResNet50_Weights, convnext_tiny, ConvNeXt_Tiny_Weights, vit_b_16, ViT_B_16_Weights, swin_t, Swin_T_Weights
+from torchvision.models import convnext_tiny, ConvNeXt_Tiny_Weights
 import torch.optim as optim
 #from torch.optim.lr_scheduler import StepLR
 import random
