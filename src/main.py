@@ -3,7 +3,7 @@ from batch import create_batches, move_images
 from aux import defaults
 from features import compute_features, get_model
 from os import listdir
-from os.path import basename, isdir, join
+from os.path import basename, isdir, join, exists
 from projections import compute_projections
 from data import generate_data, generate_thumbnails, add_scale
 import pandas as pd
