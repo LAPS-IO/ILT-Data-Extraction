@@ -42,7 +42,8 @@ def create_csv(df, csv_path):
     df['D4'] = [0] * df.shape[0]
     df['D7'] = [0] * df.shape[0]
     
-    df['thumbnails'] = df['names']
+    df['thumbnails'] = df['names'].copy()
+    df['thumbnails'] = df['thumbnails'].str.replace('png', 'jpg')
     
 #    df = df.rename(columns={'layer1': 'D1', 'layer2': 'D4', 'layer3': 'D7', 'layer4x': 'x', 'layer4y': 'y'})
     
@@ -93,8 +94,9 @@ def map_of_images(df, xrange, yrange, images_folder, output_path, zoom, fig_size
     print(output_path)
     f.savefig(output_path, bbox_inches='tight', pad_inches = 0, dpi=100)
     
-    plt.cla()
-    plt.clf()
+#    plt.cla()
+#    plt.clf()
+    plt.close(f)
     image = Image.open(output_path)
     #new_image = Image.new("RGBA", image.size, "WHITE")
     #new_image.paste(image, (0, 0), image)              

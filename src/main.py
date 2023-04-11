@@ -11,7 +11,7 @@ import pandas as pd
 def print_choices():
     print('1: Create batches')
     print('2: Extract data from batches')
-    print('3: Generate data')
+    print('3: Generate CSVs + backgrounds')
     print('4: Generate thumbnails')
     print('5: Add scale to images')
 
@@ -43,7 +43,7 @@ def choose_batch_start(project_name, images_folder):
     print(num_batches, 'batches', 'found in', project_name)
 
     batch_start = int(input('Type the number of the first batch to be processed: \n') )
-    while batch_start <= 0 or batch_start > num_batches:
+    while batch_start <= 0:
         print('Error! Batch', batch_start,'does not exist.')
         batch_start = int(input('Type the number of the first batch to be processed: \n') )
 
@@ -52,8 +52,8 @@ def choose_batch_start(project_name, images_folder):
 def choose_batch_end(images_folder, batch_start):
     num_batches = len(listdir(images_folder))
     batch_end = int(input('Type the number of the last batch to be processed: \n') )
-    while batch_end <= 0 or batch_end > num_batches or batch_end < batch_start:
-        if batch_end <= 0 or batch_end > num_batches:
+    while batch_end <= 0 or batch_end < batch_start:
+        if batch_end <= 0:
             print('Error! Batch', batch_end,'does not exist.')
         else:
             print('Error! Starting batch is higher than the last batch.')
