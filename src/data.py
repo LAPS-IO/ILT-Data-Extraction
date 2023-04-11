@@ -22,7 +22,7 @@ def create_csv(df, csv_path):
     df = df.rename(columns={'class': 'correct_label'})
     
     labels = df['correct_label'].tolist()
-    df['correct_label'] = ['_' + l for l in labels]
+    df['correct_label'] = ['_' + str(l) for l in labels]
 
     classes = df['correct_label'].unique()
     classes.sort()
