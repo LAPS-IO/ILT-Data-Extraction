@@ -16,7 +16,7 @@ defaults = {
     'ruler_ratio': 0.5,
     'base_tsne_id': 'batch_0001',
     'num_classes': 19,
-    'map_factor': 2
+    'map_factor': 2 #decrease to increase the size of the imagens in the backgrounds
 }
 
 def update_defaults():
