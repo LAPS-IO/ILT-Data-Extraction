@@ -32,42 +32,42 @@ def choose_option():
 
 def choose_project():
     list_projects = print_projects()
-    project_name = input('Type the name of the project: \n') 
+    project_name = input('Type the name of the project: ') 
     while project_name not in list_projects:
         print('Error! Project', project_name, 'does not exist.')
-        project_name = input('Type the name of the project: \n')
+        project_name = input('Type the name of the project: ')
     return project_name
 
 def choose_batch_start(project_name, images_folder):
     num_batches = len(listdir(images_folder))
     print(num_batches, 'batches', 'found in', project_name)
 
-    batch_start = int(input('Type the number of the first batch to be processed: \n') )
+    batch_start = int(input('Type the number of the first batch to be processed: ') )
     while batch_start <= 0:
         print('Error! Batch', batch_start,'does not exist.')
-        batch_start = int(input('Type the number of the first batch to be processed: \n') )
+        batch_start = int(input('Type the number of the first batch to be processed: ') )
 
     return batch_start      
 
 def choose_batch_end(images_folder, batch_start):
     num_batches = len(listdir(images_folder))
-    batch_end = int(input('Type the number of the last batch to be processed: \n') )
+    batch_end = int(input('Type the number of the last batch to be processed: ') )
     while batch_end <= 0 or batch_end < batch_start:
         if batch_end <= 0:
             print('Error! Batch', batch_end,'does not exist.')
         else:
             print('Error! Starting batch is higher than the last batch.')
-        batch_end = int(input('Type the number of the last batch to be processed: \n') )
+        batch_end = int(input('Type the number of the last batch to be processed: ') )
     return batch_end
 
 
 def main():
     val = choose_option()
     if val == 1:
-        input_path = input('Type the complete path to the folder with the images: \n') 
+        input_path = input('Type the complete path to the folder with the images: ') 
         while not isdir(input_path):
             print('Error!', input_path, 'is not a directory.')
-            input_path = input('Type the complete path to the folder with the images: \n')         
+            input_path = input('Type the complete path to the folder with the images: ')         
         else:            
             df_batches = create_batches(input_path)
             project_name = basename(input_path)
@@ -75,10 +75,17 @@ def main():
             df_batches.to_csv(join(defaults['output_folder'], project_name, 'batches.csv'), index=None)
     elif val == 2:
         project_name = choose_project()
+        weights_path = input('Type the complete path to the trained model (or press Enter to load the default weights): ') 
+
         images_folder = join(defaults['output_folder'], project_name, defaults['images'])
 
         batch_start = choose_batch_start(project_name, images_folder)
         batch_end = choose_batch_end(images_folder, batch_start)
+
+        base_id = defaults['base_tsne_id']
+        features, path_images = compute_features(images_folder, base_id, model, weights_path)
+        df, base_tsne = compute_projections(project_name, batch_id, features, path_images, df_batches, compute_base = True)
+        
 
         model = get_model()
         df_batches = pd.read_csv(join(defaults['output_folder'], project_name, 'batches.csv'), index_col = None)
@@ -86,7 +93,7 @@ def main():
         for i in range(batch_start, batch_end + 1):
             batch_id = 'batch_{:04d}'.format(i)
             print('Processing', batch_id)
-            features, path_images = compute_features(images_folder, batch_id, model, weights_path = '')
+            features, path_images = compute_features(images_folder, batch_id, model, weights_path)
             df = compute_projections(project_name, batch_id, features, path_images, df_batches) 
         
     elif val == 3:

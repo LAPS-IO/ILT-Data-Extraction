@@ -13,7 +13,8 @@ defaults = {
     'inner_folder': 'samples',
     'thumbnails_size': 100,
     'pixel_size': 12.87,
-    'ruler_ratio': 0.5
+    'ruler_ratio': 0.5,
+    'base_tsne_id': 'batch_0001'
 }
 
 def update_defaults():
