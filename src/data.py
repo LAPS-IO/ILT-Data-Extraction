@@ -43,7 +43,7 @@ def create_csv(df, csv_path):
     df['D7'] = [0] * df.shape[0]
     
     df['thumbnails'] = df['names'].copy()
-    df['thumbnails'] = df['thumbnails'].str.replace('png', 'jpg')
+#    df['thumbnails'] = df['thumbnails'].str.replace('png', 'jpg')
     
 #    df = df.rename(columns={'layer1': 'D1', 'layer2': 'D4', 'layer3': 'D7', 'layer4x': 'x', 'layer4y': 'y'})
     
@@ -158,7 +158,8 @@ def generate_thumbnails(input_path, thumbnails_folder, batch_id, max_size):
             resized = cv2.resize(img, dims, interpolation = cv2.INTER_AREA)
         else:
             resized = img
-        output_name = join(inner_path, img_name[:-4] + '.jpg')
+#        output_name = join(inner_path, img_name[:-4] + '.jpg')
+        output_name = join(inner_path, img_name)
         cv2.imwrite(output_name, resized)
 
 
