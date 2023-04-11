@@ -87,7 +87,7 @@ def main():
 
         base_id = defaults['base_tsne_id']
         features, path_images = compute_features(images_folder, base_id, model, weights_path)
-        df, base_tsne = compute_projections(project_name, batch_id, features, path_images, df_batches, compute_base = True)
+        df, base_tsne = compute_projections(project_name, base_id, features, path_images, df_batches, compute_base = True)
 
         for i in range(batch_start, batch_end + 1):
             batch_id = 'batch_{:04d}'.format(i)
