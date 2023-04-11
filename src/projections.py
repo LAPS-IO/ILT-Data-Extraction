@@ -72,4 +72,4 @@ def compute_projections(project_name, batch_id, features, path_images, df_batche
 
     df.to_csv(join(dataframes_folder, batch_id + '_' + project_name + '.csv'), index=None)
 
-    return df
+    return df, base_tsne
