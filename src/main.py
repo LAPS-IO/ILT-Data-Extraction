@@ -77,7 +77,7 @@ def main():
         project_name = choose_project()
         weights_path = input('Type the complete path to the trained model (or press Enter to load the default weights): ') 
 
-        if len(weights_path) > 0 not exists(weights_path):
+        if len(weights_path) > 0 and not exists(weights_path):
             print('Error! Model not found')
         else:
             model = get_model(load = True, num_classes = defaults['num_classes'])
