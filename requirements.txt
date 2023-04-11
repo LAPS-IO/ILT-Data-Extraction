@@ -2,3 +2,4 @@ pandas
 openTSNE
 opencv-python
 matplotlib
+torch
