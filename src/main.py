@@ -1,7 +1,7 @@
 import sys
 from batch import create_batches, move_images
 from aux import defaults
-#from features import compute_features, get_model
+from features import compute_features, get_model
 from os import listdir
 from os.path import basename, isdir, join
 from projections import compute_projections
@@ -82,13 +82,14 @@ def main():
         batch_start = choose_batch_start(project_name, images_folder)
         batch_end = choose_batch_end(images_folder, batch_start)
 
+        model = get_model()
+        df_batches = pd.read_csv(join(defaults['output_folder'], project_name, 'batches.csv'), index_col = None)
+
         base_id = defaults['base_tsne_id']
         features, path_images = compute_features(images_folder, base_id, model, weights_path)
         df, base_tsne = compute_projections(project_name, batch_id, features, path_images, df_batches, compute_base = True)
         
 
-        model = get_model()
-        df_batches = pd.read_csv(join(defaults['output_folder'], project_name, 'batches.csv'), index_col = None)
 
         for i in range(batch_start, batch_end + 1):
             batch_id = 'batch_{:04d}'.format(i)
