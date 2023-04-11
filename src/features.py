@@ -125,7 +125,7 @@ def compute_features(images_folder, batch_id, model, weights_path):
 
     activation = {}
         
-    test_list = [join(images_folder, batch_id, l, defaults['inner_folder']) for l in listdir(join(images_folder, batch_id))]
+    test_list = [join(images_folder, batch_id, defaults['inner_folder'], l) for l in listdir(join(images_folder, batch_id, defaults['inner_folder']))]
     test_data = ILTDataset(test_list, transform=test_transform)
     test_loader = DataLoader(dataset = test_data, batch_size=batch_size, shuffle=False)
 
