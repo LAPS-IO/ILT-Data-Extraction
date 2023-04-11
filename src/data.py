@@ -178,7 +178,7 @@ def generate_data(df, images_folder, project_name, batch_id, range = 100):
     print(backgrounds_folder)
         
     fig_size = 40
-    factor = defaults['factor'] #default 2 tsne, 20 umap
+    factor = defaults['map_factor'] #default 2 tsne, 20 umap
     xrange = [-range, range]
     yrange = [-range, range]
     zoom = fig_size/(factor*(xrange[1]-xrange[0])) 
