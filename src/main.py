@@ -92,8 +92,8 @@ def main():
         for i in range(batch_start, batch_end + 1):
             batch_id = 'batch_{:04d}'.format(i)
             print('Processing', batch_id)
-            features, path_images = compute_features(images_folder, batch_id, model, weights_path, base_tsne = base_tsne)
-            df = compute_projections(project_name, batch_id, features, path_images, df_batches) 
+            features, path_images = compute_features(images_folder, batch_id, model, weights_path)
+            df = compute_projections(project_name, batch_id, features, path_images, df_batches, base_tsne = base_tsne) 
         
     elif val == 3:
         project_name = choose_project()
