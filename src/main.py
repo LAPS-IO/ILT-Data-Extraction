@@ -71,9 +71,8 @@ def main():
         else:            
             df_batches = create_batches(input_path)
             project_name = basename(input_path)
-            df_batches.to_csv(join(defaults['output_folder'], project_name, 'batches.csv'), index=None)
             move_images(input_path, df_batches, project_name)
-
+            df_batches.to_csv(join(defaults['output_folder'], project_name, 'batches.csv'), index=None)
     elif val == 2:
         project_name = choose_project()
         images_folder = join(defaults['output_folder'], project_name, defaults['images'])

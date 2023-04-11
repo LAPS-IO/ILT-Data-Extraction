@@ -1,0 +1,4 @@
+pandas
+openTSNE
+opencv-python
+matplotlib
