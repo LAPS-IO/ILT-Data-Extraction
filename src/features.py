@@ -136,7 +136,7 @@ def compute_features(images_folder, batch_id, model, weights_path):
     features = None
 
     with torch.no_grad():
-        for data, paths in tqdm(test_loader):
+        for data, paths in tqdm(test_loader, ascii=True):
             data = data.to(device)
             
             with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=use_amp):
