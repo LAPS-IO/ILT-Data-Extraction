@@ -1,40 +1,39 @@
-from os import listdir
-from os.path import join, isdir
+import os
 import pandas as pd
 import math
-from shutil import copy2, move
-from aux import defaults, create_dir
+import shutil
 import PIL
-from tqdm import tqdm, trange
+import tqdm
+from aux import defaults
 
 # Input:
 # (1) input_path: a string containing the path to the input dataset
+# (2) ouput_path: a string containing the path to the output folder
 # Output:
 # (1) a Pandas DataFrame mapping each image to its original class
 #     and its assigned batch number
 
 
-def create_batches(input_path):
-    files = []
-    classes = []
-    for c in listdir(input_path):
-        class_path = join(input_path, c)
-        if isdir(class_path):
-            for f in listdir(class_path):
-                files.append(f)
-                classes.append(c)
+def create_batches(input_path, output_path):
+    print('Creating batches...')
+    files, klasses = [], []
+    for klass in os.listdir(input_path):
+        klass_path = os.path.join(input_path, klass)
+        if os.path.isdir(klass_path):
+            for file in os.listdir(klass_path):
+                files.append(file)
+                klasses.append(klass)
 
-    num_batches = math.ceil(len(files)/defaults['BATCH_MAX_SIZE'])
-    images_per_batch = math.ceil(len(files)/num_batches)
+    num_batches = math.ceil(len(files) / defaults['BATCH_MAX_SIZE'])
+    images_per_batch = math.ceil(len(files) / num_batches)
 
-    df = pd.DataFrame(list(zip(files, classes)), columns=['names', 'class'])
-
+    df = pd.DataFrame(list(zip(files, klasses)), columns=['names', 'klass'])
     df = df.sample(frac=1).reset_index(drop=True)
 
     batches = []
     count = df.shape[0]
-    i = 1
 
+    i = 1
     while count > images_per_batch:
         batches.extend(['batch_{:04d}'.format(i)] * images_per_batch)
         count -= images_per_batch
@@ -42,52 +41,43 @@ def create_batches(input_path):
     batches.extend(['batch_{:04d}'.format(i)] * count)
 
     df['batch'] = batches
+    print(df)
+    df.to_csv(os.path.join(output_path, 'batches.csv'), index=None)
+    print('Done creating batches!')
     return df
 
 # Inputs:
   # (1) input_path: a string containing the path to the input dataset
   # (2) df: a Pandas DataFrame mapping images into batch numbers
+  # (3) dataset_path: a string containing the path to the output folder
 # Side effects:
-  # (1) creates a folder in the output directory with the dataset name
-  # (2) creates a folder called images inside the previous directory
-  # (3) creates multiples batch_XXXX folders inside the images directory,
+  # (1) creates a folder called images inside the previous directory
+  # (2) creates multiples batch_XXXX folders inside the images directory,
   #     where XXXX is the id of the folder
-  # (4) copies the images from the input_path into their respective batches
+  # (3) moves the images from the input_path into their respective batches
 # Output:
-  # (1) True if the dataset folder with the batches was successfully created
-  #     inside the output directory. Returns False otherwise.
+  # None
 
 
-def move_images(input_path, df, dataset_name, debug=True, check_valid = False):
-    dataset_path = join(defaults['output_folder'], dataset_name)
-    if create_dir(dataset_path, ignore=False):
-        images_folder = join(dataset_path, defaults['images'])
-        create_dir(images_folder)
-        
-        print('Copying images to ' + dataset_path)
-        with trange(df.shape[0], ascii=True) as pbar:
-            for row in df.itertuples():
-                batch_outer_folder = join(images_folder, row.batch)
-                create_dir(batch_outer_folder)
-                batch_folder = join(batch_outer_folder, defaults['inner_folder'])
-                create_dir(batch_folder)
+def move_images(input_path, df, dataset_path, check_valid=False):
+    images_folder = os.path.join(dataset_path, defaults['images'])
+    os.mkdir(images_folder)
 
-                original_path = join(input_path, row._2, row.names)
+    print('Moving images to ' + dataset_path)
+    for row in tqdm.tqdm(df.itertuples(), desc='Images moved', unit=" images", ascii=True):
+        batch_outer_folder = os.path.join(images_folder, row.batch)
+        os.mkdir(batch_outer_folder)
 
-                if check_valid:
-                    try:
-                        img = PIL.Image.open(original_path)
-                        copy2(original_path, join(batch_folder, row.names))
+        batch_folder = os.path.join(batch_outer_folder, defaults['inner_folder'])
+        os.mkdir(batch_folder)
 
-                    except PIL.UnidentifiedImageError:
-                        print('Warning: ', original_path, 'is not a valid image')
-                else:
-                    move(original_path, join(batch_folder, row.names))
+        original_path = os.path.join(input_path, row.klass, row.names)
 
-                pbar.update(1)
+        try:
+            if check_valid:
+                PIL.Image.open(original_path)
+            shutil.move(original_path, os.path.join(batch_folder, row.names))
+        except PIL.UnidentifiedImageError:
+            print('Warning: ', original_path, 'is not a valid image')
 
-        print('Finished copying the images.')
-        return images_folder
-    else:
-        print('Error! Output folder ' + join(defaults['output_folder'], dataset_name) + ' already exists!')
-        return ''
+    print('Finished moving the images.')

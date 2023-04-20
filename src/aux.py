@@ -1,5 +1,4 @@
-from os import mkdir, getcwd
-from os.path import exists, join, dirname
+import os
 
 defaults = {
     'BATCH_MAX_SIZE': 8000,
@@ -8,7 +7,7 @@ defaults = {
     'dataframes': 'dataframes',
     'backgrounds': 'backgrounds',
     'thumbnails': 'thumbnails',
-    'root': dirname(getcwd()),
+    'root': os.path.dirname(os.getcwd()),
     'output_folder': '',
     'inner_folder': 'samples',
     'thumbnails_size': 100,
@@ -20,7 +19,7 @@ defaults = {
 }
 
 def update_defaults():
-  defaults['output_folder'] = join(defaults['root'], defaults['output'])
+  defaults['output_folder'] = os.path.join(defaults['root'], defaults['output'])
 
 update_defaults()
 
@@ -32,9 +31,9 @@ update_defaults()
   # (1) returns True if the path was created succesfully
   #     of if ignore was set to True. Returns False if
   #     both the path existed and ignore was set to False
-def create_dir(path, ignore = True):
-    if exists(path):
+def create_dir(path, ignore=True):
+    if os.path.exists(path):
         return ignore
     else:
-        mkdir(path)
+        os.mkdir(path)
         return True
