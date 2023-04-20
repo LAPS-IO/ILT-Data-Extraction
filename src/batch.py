@@ -41,7 +41,6 @@ def create_batches(input_path, output_path):
     batches.extend(['batch_{:04d}'.format(i)] * count)
 
     df['batch'] = batches
-    print(df)
     df.to_csv(os.path.join(output_path, 'batches.csv'), index=None)
     print('Done creating batches!')
     return df
@@ -61,15 +60,17 @@ def create_batches(input_path, output_path):
 
 def move_images(input_path, df, dataset_path, check_valid=False):
     images_folder = os.path.join(dataset_path, defaults['images'])
-    os.mkdir(images_folder)
+    os.mkdir(images_folder, mode=0o755)
 
     print('Moving images to ' + dataset_path)
     for row in tqdm.tqdm(df.itertuples(), desc='Images moved', unit=" images", ascii=True):
         batch_outer_folder = os.path.join(images_folder, row.batch)
-        os.mkdir(batch_outer_folder)
+        if not os.path.isdir(batch_outer_folder):
+            os.mkdir(batch_outer_folder, mode=0o755)
 
         batch_folder = os.path.join(batch_outer_folder, defaults['inner_folder'])
-        os.mkdir(batch_folder)
+        if not os.path.isdir(batch_folder):
+            os.mkdir(batch_folder, mode=0o755)
 
         original_path = os.path.join(input_path, row.klass, row.names)
 

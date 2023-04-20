@@ -7,6 +7,7 @@ from os import listdir
 from os.path import basename, isdir, join, exists
 from projections import compute_projections
 from data import generate_data, generate_thumbnails, add_scale
+import tqdm
 import pandas as pd
 
 def print_choices():
@@ -64,15 +65,15 @@ def choose_batch_end(images_folder, batch_start):
 
 def new_main():
     # read argv
-    if len(sys.argv) != 4:
+    if len(sys.argv) < 4:
         print('Missing arguments!')
-        print('Usage: main.py <project name> <input_folder> <output_folder>')
+        print('Usage: main.py <project name> <input_folder> <output_folder> <model_path (optional)>')
         exit()
 
     project_name = sys.argv[1]
     input_path = os.path.abspath(sys.argv[2])
     output_path = os.path.abspath(sys.argv[3])
-    if os.path.isdir(input_path) is False:
+    if not os.path.isdir(input_path):
         print('Input folder is invalid, please check!')
         exit()
     try:
@@ -83,14 +84,37 @@ def new_main():
     except FileExistsError:
         pass
 
+    if len(sys.argv) > 4:
+        weights_path = sys.argv[4]
+        if not os.path.exists(weights_path):
+            print('Error! Model not found! Leave it blank for default weights.')
+            exit()
+    else:
+        weights_path = ''
+
     # create batches.csv
     df_batches = create_batches(input_path, output_path)
 
     # move images
     move_images(input_path, df_batches, output_path)
 
-    # TODO:
     # Step 2: Extract data from batches
+    model = get_model(load=True, num_classes=defaults['num_classes'])
+
+    images_folder = os.path.join(output_path, defaults['images'])
+
+    df_batches = pd.read_csv(join(output_path, 'batches.csv'), index_col=None)
+
+    base_id = defaults['base_tsne_id']
+    features, path_images = compute_features(images_folder, base_id, model, weights_path)
+    df, base_tsne = compute_projections(output_path, project_name, base_id, features, path_images, df_batches, compute_base=True, save=False)
+
+    for i in range(len(listdir(images_folder))):
+        batch_id = 'batch_{:04d}'.format(i + 1)
+        features, path_images = compute_features(images_folder, batch_id, model, weights_path)
+        df = compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, base_tsne=base_tsne)
+
+    # TODO:
     # Step 3: Generate CSVs + backgrounds
     # Step 4: Generate thumbnails
     # Step 5: Add scale to images
@@ -178,4 +202,4 @@ def main():
             add_scale(input_path, batch_id)
 
 if __name__ == '__main__':
-    main()
+    new_main()
