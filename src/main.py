@@ -6,7 +6,7 @@ import os
 from os import listdir
 from os.path import basename, isdir, join, exists
 from projections import compute_projections
-from data import generate_data, generate_thumbnails, add_scale
+from data import generate_bkg, generate_thumbnails, add_scale
 import tqdm
 import pandas as pd
 
@@ -92,17 +92,13 @@ def new_main():
     else:
         weights_path = ''
 
-    # create batches.csv
+    # Step 1: Create batches
     df_batches = create_batches(input_path, output_path)
-
-    # move images
     move_images(input_path, df_batches, output_path)
 
     # Step 2: Extract data from batches
     model = get_model(load=True, num_classes=defaults['num_classes'])
-
     images_folder = os.path.join(output_path, defaults['images'])
-
     df_batches = pd.read_csv(join(output_path, 'batches.csv'), index_col=None)
 
     base_id = defaults['base_tsne_id']
@@ -114,8 +110,14 @@ def new_main():
         features, path_images = compute_features(images_folder, batch_id, model, weights_path)
         df = compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, base_tsne=base_tsne)
 
-    # TODO:
     # Step 3: Generate CSVs + backgrounds
+    df_folder = join(output_path, defaults['dataframes'])
+
+    for i in tqdm.trange(len(listdir(images_folder)), desc="Backgrounds", unit="bat", ascii=True):
+        batch_id = 'batch_{:04d}'.format(i + 1)
+        generate_bkg(df_folder, images_folder, output_path, project_name, batch_id)
+
+    # TODO:
     # Step 4: Generate thumbnails
     # Step 5: Add scale to images
 

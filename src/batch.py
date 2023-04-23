@@ -63,7 +63,7 @@ def move_images(input_path, df, dataset_path, check_valid=False):
     os.mkdir(images_folder, mode=0o755)
 
     print('Moving images to ' + dataset_path)
-    for row in tqdm.tqdm(df.itertuples(), desc='Images moved', unit=" images", ascii=True):
+    for row in tqdm.tqdm(df.itertuples(), desc='Images moved', unit="images", ascii=True):
         batch_outer_folder = os.path.join(images_folder, row.batch)
         if not os.path.isdir(batch_outer_folder):
             os.mkdir(batch_outer_folder, mode=0o755)
