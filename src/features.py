@@ -4,7 +4,6 @@ import torch.optim as optim
 import torchvision.transforms as transforms
 import numpy as np
 import random
-import tqdm
 import PIL
 import os
 from torch.utils.data import DataLoader, Dataset
@@ -122,7 +121,7 @@ def compute_features(images_folder, batch_id, model, weights_path):
     features = None
 
     with torch.no_grad():
-        for data, paths in tqdm.tqdm(test_loader, desc="Batch %s features" %(batch_id[6:]), unit='fts', ascii=True):
+        for data, paths in test_loader:
             data = data.to(device)
 
             with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=use_amp):

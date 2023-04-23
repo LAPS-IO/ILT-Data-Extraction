@@ -52,7 +52,6 @@ def opentsne_transform(features, base_tsne):
     return tsne_results
 
 def compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, base_tsne=None, compute_base=True, save=True):
-    print('Computing projections...\n')
     if compute_base:
         base_tsne = opentsne_fit(features)
         projection = base_tsne.copy()
