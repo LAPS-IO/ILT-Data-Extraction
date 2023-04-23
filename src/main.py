@@ -96,7 +96,6 @@ def new_main():
     df_batches = create_batches(input_path, output_path)
     move_images(input_path, df_batches, output_path)
 
-    # Step 2: Extract data from batches
     model = get_model(load=True, num_classes=defaults['num_classes'])
     images_folder = os.path.join(output_path, defaults['images'])
     df_batches = pd.read_csv(os.path.join(output_path, 'batches.csv'), index_col=None)
@@ -108,31 +107,27 @@ def new_main():
     df, base_tsne = compute_projections(output_path, project_name, base_id, features, path_images, df_batches, compute_base=True, save=False)
     num_batches = len(listdir(images_folder))
 
-    for i in tqdm.trange(num_batches, desc="Features/projections", unit="bat", ascii=True):
+    df_folder = join(output_path, defaults['dataframes'])
+    thumbnails_folder = os.path.join(output_path, defaults['thumbnails'])
+
+    for i in tqdm.trange(num_batches, desc="Processing batches", unit="batch", ascii=True):
         batch_id = 'batch_{:04d}'.format(i + 1)
+
+        # Step 2: Extract data
         features, path_images = compute_features(images_folder, batch_id, model, weights_path)
         df = compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, base_tsne=base_tsne)
 
-    # Step 3: Generate CSVs + backgrounds
-    df_folder = join(output_path, defaults['dataframes'])
-
-    for i in tqdm.trange(num_batches, desc="Backgrounds", unit="bat", ascii=True):
-        batch_id = 'batch_{:04d}'.format(i + 1)
+        # Step 3: Generate CSVs + backgrounds
         generate_bkg(df_folder, images_folder, output_path, project_name, batch_id)
 
-    # Step 4: Generate thumbnails
-    thumbnails_folder = os.path.join(output_path, defaults['thumbnails'])
-
-    for i in tqdm.trange(num_batches, desc="Thumbnails", unit="bat", ascii=True):
-        batch_id = 'batch_{:04d}'.format(i + 1)
+        # Step 4: Generate thumbnails
         input_path = os.path.join(images_folder, batch_id, defaults['inner_folder'])
         generate_thumbnails(input_path, thumbnails_folder, batch_id, defaults['thumbnails_size'])
 
-    # Step 5: Add scale to images
-    for i in tqdm.trange(num_batches, desc="Scales", unit="bat", ascii=True):
-        batch_id = 'batch_{:04d}'.format(i + 1)
+        # Step 5: Add scale to thumbnails
         input_path = os.path.join(thumbnails_folder, batch_id, defaults['inner_folder'])
         add_scale(input_path, batch_id)
+
 
 def main():
     val = choose_option()
