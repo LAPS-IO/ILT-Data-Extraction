@@ -113,12 +113,20 @@ def new_main():
     # Step 3: Generate CSVs + backgrounds
     df_folder = join(output_path, defaults['dataframes'])
 
-    for i in tqdm.trange(len(listdir(images_folder)), desc="Backgrounds", unit="bat", ascii=True):
+    for i in tqdm.trange(len(listdir(images_folder)), desc="Backgrounds", unit="batch", ascii=True):
         batch_id = 'batch_{:04d}'.format(i + 1)
         generate_bkg(df_folder, images_folder, output_path, project_name, batch_id)
+    print()
+
+    # Step 4: Generate thumbnails
+    thumbnails_folder = os.path.join(output_path, defaults['thumbnails'])
+
+    for i in tqdm.trange(len(listdir(images_folder)), desc="Thumbnails", unit="batch", ascii=True):
+        batch_id = 'batch_{:04d}'.format(i + 1)
+        input_path = os.path.join(images_folder, batch_id, defaults['inner_folder'])
+        generate_thumbnails(input_path, thumbnails_folder, batch_id, defaults['thumbnails_size'])
 
     # TODO:
-    # Step 4: Generate thumbnails
     # Step 5: Add scale to images
 
 def main():

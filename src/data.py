@@ -6,7 +6,7 @@ import tqdm
 import PIL
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-from aux import defaults, create_dir
+from aux import defaults
 
 # generate dataframe
 def create_csv(df, csv_path):
@@ -73,8 +73,7 @@ def map_of_images(df, xrange, yrange, images_folder, output_path, zoom, fig_size
 
     ax.set_xlim(xrange)
     ax.set_ylim(yrange)
-    print(output_path)
-    f.savefig(output_path, bbox_inches='tight', pad_inches = 0, dpi=100)
+    f.savefig(output_path, bbox_inches='tight', pad_inches=0, dpi=100)
 
     plt.close(f)
     image = PIL.Image.open(output_path)
@@ -123,27 +122,26 @@ def add_scale(input_path, img_name):
 
 # rescale image for thumbnails
 def generate_thumbnails(input_path, thumbnails_folder, batch_id, max_size):
-    create_dir(thumbnails_folder)
+    if not os.path.isdir(thumbnails_folder):
+        os.mkdir(thumbnails_folder, mode=0o755)
 
     thumbnails_path = os.path.join(thumbnails_folder, batch_id)
-    create_dir(thumbnails_path)
+    if not os.path.isdir(thumbnails_path):
+        os.mkdir(thumbnails_path, mode=0o755)
 
     inner_path = os.path.join(thumbnails_path, defaults['inner_folder'])
-    create_dir(inner_path)
+    if not os.path.isdir(inner_path):
+        os.mkdir(inner_path, mode=0o755)
 
-    with tqdm.trange(len(listdir(input_path)), ascii=True) as pbar:
-        for img_name in listdir(input_path):
-            img = cv2.imread(os.path.join(input_path, img_name))
-            if img.shape[0] > max_size:
-                scale = img.shape[0]/max_size
-                dims = (int(img.shape[1]/scale),int(img.shape[0]/scale))
-                resized = cv2.resize(img, dims, interpolation = cv2.INTER_AREA)
-            else:
-                resized = img
-            # output_name = os.path.join(inner_path, img_name[:-4] + '.jpg')
-            output_name = os.path.join(inner_path, img_name)
-            cv2.imwrite(output_name, resized)
-            pbar.update(1)
+    for img_name in os.listdir(input_path):
+        img = cv2.imread(os.path.join(input_path, img_name))
+        if img.shape[0] > max_size:
+            scale = img.shape[0] / max_size
+            dims = (int(img.shape[1] / scale), int(img.shape[0] / scale))
+            img = cv2.resize(img, dims, interpolation=cv2.INTER_AREA)
+
+        output_name = os.path.join(inner_path, img_name)
+        cv2.imwrite(output_name, img)
 
 
 def generate_bkg(df_folder, images_folder, output_path, project_name, batch_id, range=100):
