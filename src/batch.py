@@ -77,7 +77,7 @@ def move_images(input_path, df, dataset_path, check_valid=False):
         try:
             if check_valid:
                 PIL.Image.open(original_path)
-            shutil.move(original_path, os.path.join(batch_folder, row.names))
+            shutil.copy2(original_path, os.path.join(batch_folder, row.names))
         except PIL.UnidentifiedImageError:
             print('Warning: ', original_path, 'is not a valid image')
 
