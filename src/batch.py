@@ -58,7 +58,7 @@ def create_batches(input_path, output_path):
   # None
 
 
-def move_images(input_path, df, dataset_path, check_valid=False):
+def move_images(input_path, df, dataset_path):
     images_folder = os.path.join(dataset_path, defaults['images'])
     os.mkdir(images_folder, mode=0o755)
 
@@ -75,10 +75,9 @@ def move_images(input_path, df, dataset_path, check_valid=False):
         original_path = os.path.join(input_path, row.klass, row.names)
 
         try:
-            if check_valid:
-                PIL.Image.open(original_path)
-            shutil.copy2(original_path, os.path.join(batch_folder, row.names))
+            PIL.Image.open(original_path)
+            shutil.move(original_path, os.path.join(batch_folder, row.names))
         except PIL.UnidentifiedImageError:
-            print('Warning: ', original_path, 'is not a valid image')
+            print('Warning: ', original_path, 'is not a valid image! Skipping...')
 
     print("Finished moving the images.\n")
