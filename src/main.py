@@ -6,7 +6,7 @@ import os
 from os import listdir
 from os.path import basename, isdir, join, exists
 from projections import compute_projections
-from data import generate_bkg, generate_thumbnails, add_scale
+from data import generate_bkg, generate_thumbnails, add_scale, label_predictions
 import tqdm
 import pandas as pd
 
@@ -67,7 +67,7 @@ def new_main():
     # read argv
     if len(sys.argv) < 4:
         print('Missing arguments!')
-        print('Usage: main.py <project name> <input_folder> <output_folder> <model_path (optional)>')
+        print('Usage: main.py <project name> <input_folder> <output_folder> <model_path (optional)> <label_path (optional)>')
         exit()
 
     project_name = sys.argv[1]
@@ -85,12 +85,21 @@ def new_main():
         pass
 
     if len(sys.argv) > 4:
-        weights_path = sys.argv[4]
+        weights_path = os.path.abspath(sys.argv[4])
         if not os.path.exists(weights_path):
-            print('Error! Model not found! Leave it blank for default weights.')
+            print('Error! Model file not found! Leave it blank for default weights.')
             exit()
+        elif len(sys.argv) > 5:
+            labels_path = os.path.abspath(sys.argv[5])
+            if not os.path.exists(labels_path):
+                print('Error! Label file not found! Leave it blank for no labeling.')
+                exit()
+        else:
+            labels_path = ''
     else:
         weights_path = ''
+    print("Weights", weights_path)
+    print("Labels ", labels_path)
 
     # Step 1: Create batches
     df_batches = create_batches(input_path, output_path)
@@ -102,9 +111,9 @@ def new_main():
 
     base_id = defaults['base_tsne_id']
     print('Computing base features...')
-    features, path_images = compute_features(images_folder, base_id, model, weights_path)
+    features, path_images, predictions = compute_features(images_folder, base_id, model, weights_path)
     print('Computing base projections...')
-    df, base_tsne = compute_projections(output_path, project_name, base_id, features, path_images, df_batches, compute_base=True, save=False)
+    df, base_tsne = compute_projections(output_path, project_name, base_id, features, path_images, df_batches, predictions, compute_base=True, save=False)
     num_batches = len(listdir(images_folder))
 
     df_folder = join(output_path, defaults['dataframes'])
@@ -114,8 +123,8 @@ def new_main():
         batch_id = 'batch_{:04d}'.format(i + 1)
 
         # Step 2: Extract data
-        features, path_images = compute_features(images_folder, batch_id, model, weights_path)
-        df = compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, base_tsne=base_tsne)
+        features, path_images, predictions = compute_features(images_folder, batch_id, model, weights_path)
+        df = compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, predictions, base_tsne=base_tsne)
 
         # Step 3: Generate CSVs + backgrounds
         generate_bkg(df_folder, images_folder, output_path, project_name, batch_id)
@@ -127,6 +136,10 @@ def new_main():
         # Step 5: Add scale to thumbnails
         input_path = os.path.join(thumbnails_folder, batch_id, defaults['inner_folder'])
         add_scale(input_path, batch_id)
+
+        # Step 6: Label predictions
+        if not labels_path == '':
+            label_predictions(df_folder, labels_path, project_name, batch_id)
 
 
 def main():

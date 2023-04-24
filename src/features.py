@@ -152,4 +152,4 @@ def compute_features(images_folder, batch_id, model, weights_path):
     # df_features = pd.DataFrame(arr, columns = cs)
     # df_features.to_csv(os.path.join(predictions_path, batch_id + '.csv'), index=None)
 
-    return features, path_images
+    return features, path_images, predictions

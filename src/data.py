@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import cv2
 import tqdm
+import json
 import PIL
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
@@ -161,3 +162,12 @@ def generate_bkg(df_folder, images_folder, output_path, project_name, batch_id, 
 
     csv_path = os.path.join(df_folder, batch_id + '_' + project_name + '.csv')
     create_csv(df, csv_path)
+
+
+def label_predictions(df_folder, label_path, project_name, batch_id):
+    json_file = open(label_path)
+    labels_d = json.load(json_file)
+    labels_d = {v: k for k, v in labels_d.items()}
+    batch_df = pd.read_csv(os.path.join(df_folder, batch_id + '_' + project_name + '.csv'))
+    batch_df['pred'] = batch_df['pred'].replace(labels_d)
+    print(batch_df)

@@ -14,7 +14,7 @@ defaults = {
     'pixel_size': 12.87,
     'ruler_ratio': 0.5,
     'base_tsne_id': 'batch_0001',
-    'num_classes': 19,
+    'num_classes': 25,
     'map_factor': 2 #decrease to increase the size of the imagens in the backgrounds
 }
 

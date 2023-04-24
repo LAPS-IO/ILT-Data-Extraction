@@ -51,7 +51,7 @@ def opentsne_transform(features, base_tsne):
 
     return tsne_results
 
-def compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, base_tsne=None, compute_base=True, save=True):
+def compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, predictions, base_tsne=None, compute_base=True, save=True):
     if compute_base:
         base_tsne = opentsne_fit(features)
         projection = base_tsne.copy()
@@ -59,10 +59,11 @@ def compute_projections(output_path, project_name, batch_id, features, path_imag
         projection = opentsne_transform(features, base_tsne)
 
     path_images = np.reshape(np.array(path_images), (-1, 1))
+    predictions_arr = np.reshape(np.array(predictions), (-1, 1))
 
-    tsne_arr = np.hstack((path_images, projection))
+    tsne_arr = np.hstack((path_images, projection, predictions_arr))
 
-    df_preds = pd.DataFrame(tsne_arr, columns =['names', 'x', 'y'])
+    df_preds = pd.DataFrame(tsne_arr, columns =['names', 'x', 'y', 'pred'])
     dataframes_folder = os.path.join(output_path, defaults['dataframes'])
     if not os.path.isdir(dataframes_folder):
         os.mkdir(dataframes_folder, mode=0o755)
