@@ -80,7 +80,7 @@ def main():
         generate_thumbnails(input_path, thumbnails_folder, batch_id, defaults['thumbnails_size'])
 
         # Step 5: Add scale to thumbnails
-        input_path = os.path.join(thumbnails_folder, batch_id, defaults['inner_folder'])
+        input_path = os.path.join(images_folder, batch_id, defaults['inner_folder'])
         add_scale(input_path, batch_id)
 
         # Step 6: Label predictions
