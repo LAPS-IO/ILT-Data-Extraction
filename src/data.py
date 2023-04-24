@@ -170,4 +170,4 @@ def label_predictions(df_folder, label_path, project_name, batch_id):
     labels_d = {v: k for k, v in labels_d.items()}
     batch_df = pd.read_csv(os.path.join(df_folder, batch_id + '_' + project_name + '.csv'))
     batch_df['pred'] = batch_df['pred'].replace(labels_d)
-    print(batch_df)
+    batch_df.to_csv(os.path.join(df_folder, batch_id + '_' + project_name + '.csv'), index=False)
