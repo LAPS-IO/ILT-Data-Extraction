@@ -5,7 +5,7 @@ import pandas as pd
 from batch import create_batches, move_images
 from features import compute_features, get_model
 from projections import compute_projections
-from data import generate_bkg, generate_thumbnails, add_scale, label_predictions
+from data import generate_bkg, generate_thumbnails, add_scale, remove_scale, label_predictions
 from aux import defaults
 
 
@@ -50,6 +50,7 @@ def main():
     # Step 1: Create batches
     df_batches = create_batches(input_path, output_path)
     move_images(input_path, df_batches, output_path)
+    remove_scale(os.path.join(output_path, defaults['images']))
 
     model = get_model(load=True, num_classes=defaults['num_classes'])
     images_folder = os.path.join(output_path, defaults['images'])
@@ -65,7 +66,7 @@ def main():
     df_folder = os.path.join(output_path, defaults['dataframes'])
     thumbnails_folder = os.path.join(output_path, defaults['thumbnails'])
 
-    for i in tqdm.trange(num_batches, desc="Processing batches", unit="batch", ascii=True):
+    for i in tqdm.trange(num_batches, desc='Processing batches', unit='batch', ascii=True):
         batch_id = 'batch_{:04d}'.format(i + 1)
 
         # Step 2: Extract data

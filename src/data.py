@@ -119,6 +119,28 @@ def add_scale(input_path, img_name):
         img_out.save(os.path.join(input_path, img_name))
 
 
+def remove_scale(input_folder):
+    input_path = os.listdir(input_folder)
+    input_path.sort()
+    for outer_folder in tqdm.tqdm(input_path, desc='Removing scales', unit='folders', ascii=True):
+        class_path = os.path.join(input_folder, outer_folder)
+        if os.path.isdir(class_path):
+            inner_path = os.path.join(class_path, 'samples')
+            for inner_folder in tqdm.tqdm(os.listdir(inner_path), desc="%s" %(inner_path[-18:-8]), unit="img", ascii=True):
+                img_path = os.path.join(inner_path, inner_folder)
+                im = PIL.Image.open(img_path)
+                arr = np.array(im)
+                w, h = im.size
+                avg1 = np.mean(arr[0:10, 0:w])
+                avg2 = np.mean(arr[10:h - 10, 0:10])
+                avg3 = np.mean(arr[10:h - 10, w - 10:w])
+                avg = (avg1 + avg2 + avg3) / 3
+                if avg > 240:
+                    resized = im.crop((10, 10, w - 10, h - 20))
+                    resized.save(img_path)
+    print()
+
+
 # rescale image for thumbnails
 def generate_thumbnails(input_path, thumbnails_folder, batch_id, max_size):
     if not os.path.isdir(thumbnails_folder):
