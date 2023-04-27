@@ -6,28 +6,24 @@ import PIL
 import tqdm
 from aux import defaults
 
+
 # Input:
 # (1) input_path: a string containing the path to the input dataset
 # (2) ouput_path: a string containing the path to the output folder
 # Output:
 # (1) a Pandas DataFrame mapping each image to its original class
 #     and its assigned batch number
-
-
 def create_batches(input_path, output_path):
     print('Creating batches...')
-    files, klasses = [], []
-    for klass in os.listdir(input_path):
-        klass_path = os.path.join(input_path, klass)
-        if os.path.isdir(klass_path):
-            for file in os.listdir(klass_path):
-                files.append(file)
-                klasses.append(klass)
+    imgs = []
+    for pwd, children, files in os.walk(input_path):
+        rel_pwd = pwd[len(input_path) + 1:]
+        imgs += [ (file, rel_pwd) for file in files if (file.endswith('.png') or file.endswith('.jpg')) ]
 
-    num_batches = math.ceil(len(files) / defaults['BATCH_MAX_SIZE'])
-    images_per_batch = math.ceil(len(files) / num_batches)
+    num_batches = math.ceil(len(imgs) / defaults['BATCH_MAX_SIZE'])
+    images_per_batch = math.ceil(len(imgs) / num_batches)
 
-    df = pd.DataFrame(list(zip(files, klasses)), columns=['names', 'klass'])
+    df = pd.DataFrame(imgs, columns=['names', 'klass'])
     df = df.sample(frac=1).reset_index(drop=True)
 
     batches = []
@@ -45,6 +41,7 @@ def create_batches(input_path, output_path):
     print('Done creating batches!')
     return df
 
+
 # Inputs:
   # (1) input_path: a string containing the path to the input dataset
   # (2) df: a Pandas DataFrame mapping images into batch numbers
@@ -56,8 +53,6 @@ def create_batches(input_path, output_path):
   # (3) moves the images from the input_path into their respective batches
 # Output:
   # None
-
-
 def move_images(input_path, df, dataset_path):
     images_folder = os.path.join(dataset_path, defaults['images'])
     os.mkdir(images_folder, mode=0o755)
