@@ -58,21 +58,24 @@ def move_images(input_path, df, dataset_path):
     os.mkdir(images_folder, mode=0o755)
 
     print('Moving images to ' + dataset_path)
-    for row in tqdm.tqdm(df.itertuples(), desc='Images moved', unit=" images", ascii=True):
-        batch_outer_folder = os.path.join(images_folder, row.batch)
-        if not os.path.isdir(batch_outer_folder):
-            os.mkdir(batch_outer_folder, mode=0o755)
+    with tqdm.trange(df.shape[0], desc='Images moved', unit=" images", ascii=True) as pbar:
+        for row in df.itertuples():
+            batch_outer_folder = os.path.join(images_folder, row.batch)
+            if not os.path.isdir(batch_outer_folder):
+                os.mkdir(batch_outer_folder, mode=0o755)
 
-        batch_folder = os.path.join(batch_outer_folder, defaults['inner_folder'])
-        if not os.path.isdir(batch_folder):
-            os.mkdir(batch_folder, mode=0o755)
+            batch_folder = os.path.join(batch_outer_folder, defaults['inner_folder'])
+            if not os.path.isdir(batch_folder):
+                os.mkdir(batch_folder, mode=0o755)
 
-        original_path = os.path.join(input_path, row.klass, row.names)
+            original_path = os.path.join(input_path, row.klass, row.names)
 
-        try:
-            PIL.Image.open(original_path)
-            shutil.move(original_path, os.path.join(batch_folder, row.names))
-        except PIL.UnidentifiedImageError:
-            print('Warning: ', original_path, 'is not a valid image! Skipping...')
+            try:
+                PIL.Image.open(original_path)
+                shutil.move(original_path, os.path.join(batch_folder, row.names))
+            except PIL.UnidentifiedImageError:
+                print('Warning: ', original_path, 'is not a valid image! Skipping...')
+            finally:
+                pbar.update(1)
 
     print("Finished moving the images.\n")
