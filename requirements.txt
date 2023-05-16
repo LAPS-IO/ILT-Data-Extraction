@@ -1,5 +1,0 @@
-pandas
-openTSNE
-opencv-python
-matplotlib
-tqdm
