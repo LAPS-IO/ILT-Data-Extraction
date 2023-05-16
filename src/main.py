@@ -37,7 +37,7 @@ def main():
         if not os.path.exists(weights_path):
             print('Error! Model file not found! Leave it blank for default weights.')
             exit()
-        else: # len(sys.argv) > 5
+        elif len(sys.argv) > 5:
             labels_path = os.path.abspath(sys.argv[5])
             if not os.path.exists(labels_path):
                 print('Error! Label file not found! Leave it blank for no labeling.')
