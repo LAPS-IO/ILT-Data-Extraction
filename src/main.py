@@ -30,20 +30,18 @@ def main():
     except FileExistsError:
         pass
 
+    weights_path = ''
+    labels_path = ''
     if len(sys.argv) > 4:
         weights_path = os.path.abspath(sys.argv[4])
         if not os.path.exists(weights_path):
             print('Error! Model file not found! Leave it blank for default weights.')
             exit()
-        elif len(sys.argv) > 5:
+        else: # len(sys.argv) > 5
             labels_path = os.path.abspath(sys.argv[5])
             if not os.path.exists(labels_path):
                 print('Error! Label file not found! Leave it blank for no labeling.')
                 exit()
-        else:
-            labels_path = ''
-    else:
-        weights_path = ''
     print('Weights:', weights_path)
     print('Labels :', labels_path, "\n")
 
