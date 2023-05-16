@@ -11,41 +11,41 @@ from aux import defaults
 
 def main():
     # read argv
-    if len(sys.argv) < 4:
-        print('Missing arguments!')
-        print('Usage: main.py <project name> <input_folder> <output_folder> <model_path (optional)> <label_path (optional)>')
-        exit()
-
-    project_name = sys.argv[1]
-    input_path = os.path.abspath(sys.argv[2])
-    output_path = os.path.abspath(sys.argv[3])
-    if not os.path.isdir(input_path):
-        print('Input folder is invalid, please check!')
-        exit()
-    try:
-        os.mkdir(output_path, mode=0o755)
-    except FileNotFoundError:
-        print('Output folder is invalid, please check!')
-        exit()
-    except FileExistsError:
-        pass
-
-    weights_path = ''
-    labels_path = ''
-    if len(sys.argv) > 4:
-        weights_path = os.path.abspath(sys.argv[4])
-        if not os.path.exists(weights_path):
-            print('Error! Model file not found! Leave it blank for default weights.')
+    if len(sys.argv) > 2:
+        input_path = os.path.abspath(sys.argv[1])
+        output_path = os.path.abspath(sys.argv[2])
+        project_name = os.path.basename(output_path)
+        if not os.path.isdir(input_path):
+            print('Input folder is invalid, please check!')
             exit()
-        elif len(sys.argv) > 5:
-            labels_path = os.path.abspath(sys.argv[5])
-            if not os.path.exists(labels_path):
-                print('Error! Label file not found! Leave it blank for no labeling.')
+        if len(sys.argv) == 5:
+            weights_path = os.path.abspath(sys.argv[3])
+            if not os.path.exists(weights_path):
+                print('Error! Model file not found!')
                 exit()
+            labels_path = os.path.abspath(sys.argv[4])
+            if not os.path.exists(labels_path):
+                print('Error! Label file not found!')
+                exit()
+        else:
+            weights_path, labels_path = '', ''
+        try:
+            os.mkdir(output_path, mode=0o755)
+        except FileNotFoundError:
+            print('Output folder is invalid, please check!')
+            exit()
+        except FileExistsError:
+            print('Output folder already exists! Please provide a name for a new folder instead.')
+            exit()
+    else:
+        print('Wrong number of arguments!')
+        print('Usage: main.py <input_folder> <output_folder> [<model_path> <label_path > (optionals)]')
+        exit()
+
     print('Weights:', weights_path)
     print('Labels :', labels_path, "\n")
 
-    # Step 1: Create batches
+    # Step 1: Create batches and remove scales
     df_batches = create_batches(input_path, output_path)
     move_images(input_path, df_batches, output_path)
     remove_scale(os.path.join(output_path, defaults['images']))
