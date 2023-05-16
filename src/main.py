@@ -27,6 +27,7 @@ def main():
             if not os.path.exists(labels_path):
                 print('Error! Label file not found!')
                 exit()
+            print('Weights:', weights_path, "\n", 'Labels :', labels_path, "\n")
         else:
             weights_path, labels_path = '', ''
         try:
@@ -41,9 +42,6 @@ def main():
         print('Wrong number of arguments!')
         print('Usage: main.py <input_folder> <output_folder> [<model_path> <label_path > (optionals)]')
         exit()
-
-    print('Weights:', weights_path)
-    print('Labels :', labels_path, "\n")
 
     # Step 1: Create batches and remove scales
     df_batches = create_batches(input_path, output_path)
@@ -64,7 +62,7 @@ def main():
     df_folder = os.path.join(output_path, defaults['dataframes'])
     thumbnails_folder = os.path.join(output_path, defaults['thumbnails'])
 
-    for i in tqdm.trange(num_batches, desc='Processing batches', unit='batch', ascii=True):
+    for i in tqdm.trange(num_batches, desc='Processing', unit='bat', ascii=True, ncols=80):
         batch_id = 'batch_{:04d}'.format(i + 1)
 
         # Step 2: Extract data

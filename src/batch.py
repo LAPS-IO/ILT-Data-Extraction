@@ -58,7 +58,7 @@ def move_images(input_path, df, dataset_path):
     os.mkdir(images_folder, mode=0o755)
 
     print('Moving images to ' + dataset_path)
-    with tqdm.trange(df.shape[0], desc='Images moved', unit=" images", ascii=True) as pbar:
+    with tqdm.trange(df.shape[0], desc='Moved', unit='img', ascii=True, ncols=80) as pbar:
         for row in df.itertuples():
             batch_outer_folder = os.path.join(images_folder, row.batch)
             if not os.path.isdir(batch_outer_folder):
@@ -76,3 +76,4 @@ def move_images(input_path, df, dataset_path):
             else:
                 shutil.move(original_path, os.path.join(batch_folder, row.names))
             pbar.update(1)
+    print()

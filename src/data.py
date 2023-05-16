@@ -120,9 +120,10 @@ def add_scale(input_path, img_name):
 
 
 def remove_scale(input_folder):
+    print('Removing scales')
     input_path = os.listdir(input_folder)
     input_path.sort()
-    for outer_folder in tqdm.tqdm(input_path, desc='Removing scales', unit='folders', ascii=True):
+    for outer_folder in tqdm.tqdm(input_path, desc='Scale', unit='bat', ascii=True, ncols=80):
         class_path = os.path.join(input_folder, outer_folder)
         if os.path.isdir(class_path):
             inner_path = os.path.join(class_path, 'samples')
