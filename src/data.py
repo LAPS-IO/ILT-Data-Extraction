@@ -126,7 +126,7 @@ def remove_scale(input_folder):
         class_path = os.path.join(input_folder, outer_folder)
         if os.path.isdir(class_path):
             inner_path = os.path.join(class_path, 'samples')
-            for inner_folder in tqdm.tqdm(os.listdir(inner_path), desc="%s" %(inner_path[-18:-8]), unit="img", ascii=True):
+            for inner_folder in os.listdir(inner_path):
                 img_path = os.path.join(inner_path, inner_folder)
                 im = PIL.Image.open(img_path)
                 arr = np.array(im)
