@@ -70,12 +70,9 @@ def move_images(input_path, df, dataset_path):
 
             original_path = os.path.join(input_path, row.klass, row.names)
 
-            try:
-                PIL.Image.open(original_path)
-                shutil.move(original_path, os.path.join(batch_folder, row.names))
-            except PIL.UnidentifiedImageError:
+            if os.stat(original_path).st_size == 0:
                 print('Warning: ', original_path, 'is not a valid image! Skipping...')
-            finally:
-                pbar.update(1)
-
-    print("Finished moving the images.\n")
+                df.drop(row.Index, inplace=True)
+            else:
+                shutil.move(original_path, os.path.join(batch_folder, row.names))
+            pbar.update(1)
