@@ -139,6 +139,8 @@ def remove_scale(input_folder):
                 if avg > 240:
                     resized = im.crop((10, 10, w - 10, h - 20))
                     resized.save(img_path)
+                    resized.close()
+                im.close()
     print()
 
 
