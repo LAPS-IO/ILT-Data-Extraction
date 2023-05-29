@@ -57,37 +57,6 @@ def get_image(path, paint=False, color=(1, 1, 1), zoom=0.2, dim=255):
     return OffsetImage(img, zoom=zoom)
 
 
-def map_of_images(df, xrange, yrange, images_folder, output_path, zoom, fig_size=40):
-    df_x = pd.to_numeric(df['x'])
-    df_y = pd.to_numeric(df['y'])
-
-    df_filtered = df[(df_x >= xrange[0]) & (df_x <= xrange[1]) & (df_y >= yrange[0]) & (df_y <= yrange[1])]
-
-    x = df_filtered['x']
-    y = df_filtered['y']
-    names = df_filtered['names']
-
-    f = plt.figure(figsize=(fig_size, fig_size), frameon=False)
-    ax = plt.Axes(f, [0., 0., 1., 1.])
-    ax.axis('off')
-    f.add_axes(ax)
-    ax.scatter(x, y, s=0)
-
-    for xs, ys, name in zip(x, y, names):
-        path = os.path.join(images_folder, name)
-        ab = AnnotationBbox(get_image(path, zoom=zoom), (xs, ys), frameon=False, box_alignment=(0, 1))
-        ax.add_artist(ab)
-
-    ax.set_xlim(xrange)
-    ax.set_ylim(yrange)
-    f.savefig(output_path, bbox_inches='tight', pad_inches=0, dpi=100)
-
-    plt.close(f)
-    image = PIL.Image.open(output_path)
-
-    return image
-
-
 def add_scale(input_path, img_name):
     for img_name in os.listdir(input_path):
         img = cv2.imread(os.path.join(input_path, img_name))
@@ -183,12 +152,36 @@ def generate_thumbnails(input_path, thumbnails_folder, batch_id, max_size):
         cv2.imwrite(output_name, img)
 
 
-def generate_bkg(df_folder, images_folder, output_path, project_name, batch_id, range=100):
-    df = pd.read_csv(os.path.join(df_folder, batch_id + '_' + project_name + '.csv'), index_col=None)
+def map_of_images(df, xrange, yrange, images_folder, output_path, zoom, fig_size=40):
+    df_x = pd.to_numeric(df['x'])
+    df_y = pd.to_numeric(df['y'])
 
-    backgrounds_folder = os.path.join(output_path, defaults['backgrounds'])
-    if not os.path.isdir(backgrounds_folder):
-        os.mkdir(backgrounds_folder, mode=0o755)
+    df_filtered = df[(df_x >= xrange[0]) & (df_x <= xrange[1]) & (df_y >= yrange[0]) & (df_y <= yrange[1])]
+
+    x = df_filtered['x']
+    y = df_filtered['y']
+    names = df_filtered['names']
+
+    f = plt.figure(figsize=(fig_size, fig_size), frameon=False)
+    ax = plt.Axes(f, [0., 0., 1., 1.])
+    ax.axis('off')
+    f.add_axes(ax)
+    ax.scatter(x, y, s=0)
+
+    for xs, ys, name in zip(x, y, names):
+        path = os.path.join(images_folder, name)
+        ab = AnnotationBbox(get_image(path, zoom=zoom), (xs, ys), frameon=False, box_alignment=(0, 1))
+        ax.add_artist(ab)
+
+    ax.set_xlim(xrange)
+    ax.set_ylim(yrange)
+    f.savefig(output_path, bbox_inches='tight', pad_inches=0, dpi=100)
+    plt.close(f)
+
+
+def generate_bkg(backgrounds_folder, df_folder, images_folder, project_name, batch_num, range=100):
+    batch_id = 'batch_{:04d}'.format(batch_num)
+    df = pd.read_csv(os.path.join(df_folder, batch_id + '_' + project_name + '.csv'), index_col=None)
 
     fig_size = 40
     factor = defaults['map_factor'] # defaults: 2 tsne, 20 umap
@@ -198,7 +191,7 @@ def generate_bkg(df_folder, images_folder, output_path, project_name, batch_id, 
 
     backgrounds_path = os.path.join(backgrounds_folder, batch_id + '_' + project_name + '.png')
     images_folder_batch = os.path.join(images_folder, batch_id, defaults['inner_folder'])
-    image = map_of_images(df, xrange, yrange, images_folder_batch, backgrounds_path, zoom, fig_size)
+    map_of_images(df, xrange, yrange, images_folder_batch, backgrounds_path, zoom, fig_size)
 
     csv_path = os.path.join(df_folder, batch_id + '_' + project_name + '.csv')
     create_csv(df, csv_path)
