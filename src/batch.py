@@ -1,9 +1,14 @@
-import os
-import pandas as pd
 import math
+import multiprocessing as mp
+import os
 import shutil
+import timeit
+from datetime import timedelta
+
+import pandas as pd
 import PIL
 import tqdm
+
 from aux import defaults
 
 
@@ -38,8 +43,25 @@ def create_batches(input_path, output_path):
 
     df['batch'] = batches
     df.to_csv(os.path.join(output_path, 'batches.csv'), index=None)
-    print('Done creating batches!')
+    print("Done creating batches!\n")
     return df
+
+def move_batch_images(input_path, images_folder, df):
+    for row in tqdm.tqdm(df.itertuples(), desc=df['batch'].iloc[0], unit='img', ascii=True, ncols=80):
+        batch_outer_folder = os.path.join(images_folder, row.batch)
+        if not os.path.isdir(batch_outer_folder):
+            os.mkdir(batch_outer_folder, mode=0o755)
+
+        batch_folder = os.path.join(batch_outer_folder, defaults['inner_folder'])
+        if not os.path.isdir(batch_folder):
+            os.mkdir(batch_folder, mode=0o755)
+
+        original_path = os.path.join(input_path, row.klass, row.names)
+        if os.stat(original_path).st_size == 0:
+            print('Warning: ', original_path, 'is not a valid image! Skipping...')
+            df.drop(row.Index, inplace=True)
+        else:
+            shutil.move(original_path, os.path.join(batch_folder, row.names))
 
 
 # Inputs:
@@ -58,22 +80,11 @@ def move_images(input_path, df, dataset_path):
     os.mkdir(images_folder, mode=0o755)
 
     print('Moving images to ' + dataset_path)
-    with tqdm.trange(df.shape[0], desc='Moved', unit='img', ascii=True, ncols=80) as pbar:
-        for row in df.itertuples():
-            batch_outer_folder = os.path.join(images_folder, row.batch)
-            if not os.path.isdir(batch_outer_folder):
-                os.mkdir(batch_outer_folder, mode=0o755)
-
-            batch_folder = os.path.join(batch_outer_folder, defaults['inner_folder'])
-            if not os.path.isdir(batch_folder):
-                os.mkdir(batch_folder, mode=0o755)
-
-            original_path = os.path.join(input_path, row.klass, row.names)
-
-            if os.stat(original_path).st_size == 0:
-                print('Warning: ', original_path, 'is not a valid image! Skipping...')
-                df.drop(row.Index, inplace=True)
-            else:
-                shutil.move(original_path, os.path.join(batch_folder, row.names))
-            pbar.update(1)
-    print()
+    start = timeit.default_timer()
+    groups = [splitted_df for _, splitted_df in df.groupby(df.batch)]
+    pool = mp.Pool(mp.cpu_count())
+    [pool.apply_async(move_batch_images, args=(input_path, images_folder, group)) for group in groups]
+    pool.close()
+    pool.join()
+    end = timeit.default_timer()
+    print('Total time:', timedelta(seconds=(end - start)), "\n")
