@@ -1,13 +1,19 @@
-import os
-import pandas as pd
-import numpy as np
-import cv2
-import tqdm
 import json
-import PIL
+import multiprocessing as mp
+import os
+import timeit
+from datetime import timedelta
+
+import cv2
 import matplotlib.pyplot as plt
-from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+import numpy as np
+import pandas as pd
+import PIL
+import tqdm
+from matplotlib.offsetbox import AnnotationBbox, OffsetImage
+
 from aux import defaults
+
 
 # generate dataframe
 def create_csv(df, csv_path):
@@ -119,29 +125,38 @@ def add_scale(input_path, img_name):
         img_out.save(os.path.join(input_path, img_name))
 
 
+
+def purge_scale(input_folder, input_path, outer_folder):
+    class_path = os.path.join(input_folder, outer_folder)
+    if os.path.isdir(class_path):
+        inner_path = os.path.join(class_path, 'samples')
+        for inner_folder in os.listdir(inner_path):
+            img_path = os.path.join(inner_path, inner_folder)
+            im = PIL.Image.open(img_path)
+            arr = np.array(im)
+            w, h = im.size
+            avg1 = np.mean(arr[0:10, 0:w])
+            avg2 = np.mean(arr[10:h - 10, 0:10])
+            avg3 = np.mean(arr[10:h - 10, w - 10:w])
+            avg = (avg1 + avg2 + avg3) / 3
+            if avg > 240:
+                resized = im.crop((10, 10, w - 10, h - 20))
+                resized.save(img_path)
+                resized.close()
+            im.close()
+
+
 def remove_scale(input_folder):
     print('Removing scales')
+    start = timeit.default_timer()
     input_path = os.listdir(input_folder)
     input_path.sort()
-    for outer_folder in tqdm.tqdm(input_path, desc='Scale', unit='bat', ascii=True, ncols=80):
-        class_path = os.path.join(input_folder, outer_folder)
-        if os.path.isdir(class_path):
-            inner_path = os.path.join(class_path, 'samples')
-            for inner_folder in os.listdir(inner_path):
-                img_path = os.path.join(inner_path, inner_folder)
-                im = PIL.Image.open(img_path)
-                arr = np.array(im)
-                w, h = im.size
-                avg1 = np.mean(arr[0:10, 0:w])
-                avg2 = np.mean(arr[10:h - 10, 0:10])
-                avg3 = np.mean(arr[10:h - 10, w - 10:w])
-                avg = (avg1 + avg2 + avg3) / 3
-                if avg > 240:
-                    resized = im.crop((10, 10, w - 10, h - 20))
-                    resized.save(img_path)
-                    resized.close()
-                im.close()
-    print()
+    pool = mp.Pool(mp.cpu_count())
+    [pool.apply_async(purge_scale, args=(input_folder, input_path, outer_folder)) for outer_folder in input_path]
+    pool.close()
+    pool.join()
+    end = timeit.default_timer()
+    print('Done in:', timedelta(seconds=(end - start)))
 
 
 # rescale image for thumbnails
