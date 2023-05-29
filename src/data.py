@@ -130,7 +130,7 @@ def purge_scale(input_folder, input_path, outer_folder):
     class_path = os.path.join(input_folder, outer_folder)
     if os.path.isdir(class_path):
         inner_path = os.path.join(class_path, 'samples')
-        for inner_folder in os.listdir(inner_path):
+        for inner_folder in tqdm.tqdm(os.listdir(inner_path), desc=outer_folder, unit='img', ascii=True, ncols=80):
             img_path = os.path.join(inner_path, inner_folder)
             im = PIL.Image.open(img_path)
             arr = np.array(im)
@@ -156,7 +156,7 @@ def remove_scale(input_folder):
     pool.close()
     pool.join()
     end = timeit.default_timer()
-    print('Done in:', timedelta(seconds=(end - start)))
+    print('Total time:', timedelta(seconds=(end - start)), "\n")
 
 
 # rescale image for thumbnails
