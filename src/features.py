@@ -1,14 +1,19 @@
+import os
+import random
+
+import numpy as np
+import PIL
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.transforms as transforms
-import numpy as np
-import random
-import PIL
-import os
 from torch.utils.data import DataLoader, Dataset
-from torchvision.models import convnext_tiny, ConvNeXt_Tiny_Weights
+from torchvision.models import ConvNeXt_Tiny_Weights, convnext_tiny
+
 from aux import defaults
+
+import timeit
+from datetime import timedelta
 
 activation = {}
 
@@ -86,6 +91,7 @@ def compute_features(images_folder, batch_id, model, weights_path):
     lr = 3e-5
     # gamma = 0.7
     seed = 0
+    torch.backends.cudnn.benchmark = True
 
     seed_everything(seed)
     test_transform = get_transforms()
@@ -97,15 +103,13 @@ def compute_features(images_folder, batch_id, model, weights_path):
     scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
     dev = torch.cuda.current_device()
 
+    model.to(device) # important to do BEFORE loading the optimizer
     if weights_path != '':
         checkpoint = torch.load(weights_path, map_location=lambda storage, loc: storage.cuda(dev))
 
         model.load_state_dict(checkpoint['model'])
-        model.to(device) # important to do BEFORE loading the optimizer
         optimizer.load_state_dict(checkpoint['optimizer'])
         scaler.load_state_dict(checkpoint['scaler'])
-    else:
-        model.to(device) # important to do BEFORE loading the optimizer
 
     register_hooks(model)
 
@@ -115,7 +119,7 @@ def compute_features(images_folder, batch_id, model, weights_path):
     file_list = os.listdir(inner_folder)
     test_list = [os.path.join(inner_folder, file) for file in file_list]
     test_data = ILTDataset(test_list, transform=test_transform)
-    test_loader = DataLoader(dataset=test_data, batch_size=batch_size, shuffle=False)
+    test_loader = DataLoader(dataset=test_data, batch_size=batch_size, shuffle=False, pin_memory=True, num_workers=1)
 
     path_images, predictions = [], []
     features = None
@@ -123,7 +127,6 @@ def compute_features(images_folder, batch_id, model, weights_path):
     with torch.no_grad():
         for data, paths in test_loader:
             data = data.to(device)
-
             with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=use_amp):
                 output = model(data)
                 if features is None:
@@ -143,13 +146,6 @@ def compute_features(images_folder, batch_id, model, weights_path):
             path_images.extend(paths)
 
         features = features.cpu().detach().numpy()
-
-    # arr_files = np.array(images_path).reshape(len(images_path), -1)
-    # arr = np.hstack([arr_files, features])
-    # cs = ['names']
-    # for i in range(features.shape[1]):
-    #     cs.append('f_' + str(i+1))
-    # df_features = pd.DataFrame(arr, columns = cs)
-    # df_features.to_csv(os.path.join(predictions_path, batch_id + '.csv'), index=None)
+    end = timeit.default_timer()
 
     return features, path_images, predictions

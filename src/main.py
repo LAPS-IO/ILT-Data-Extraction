@@ -61,9 +61,16 @@ def main():
 
     base_id = defaults['base_tsne_id']
     print('Computing base features...')
+    start = timeit.default_timer()
     features, path_images, predictions = compute_features(images_folder, base_id, model, weights_path)
+    end = timeit.default_timer()
+    print('Total time:', timedelta(seconds=(end - start)), "\n")
+
     print('Computing base projections...')
-    df, base_tsne = compute_projections(output_path, project_name, base_id, features, path_images, df_batches, predictions, compute_base=True, save=False)
+    start = timeit.default_timer()
+    base_tsne = compute_projections(output_path, project_name, base_id, features, path_images, df_batches, predictions, compute_base=True, save=False)
+    end = timeit.default_timer()
+    print('Total time:', timedelta(seconds=(end - start)), "\n")
     print()
 
     num_batches = len(os.listdir(images_folder))
@@ -74,7 +81,7 @@ def main():
     for i in tqdm.trange(num_batches, desc='Feat/Proj', unit='bat', ascii=True, ncols=80):
         batch_id = 'batch_{:04d}'.format(i + 1)
         features, path_images, predictions = compute_features(images_folder, batch_id, model, weights_path)
-        df = compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, predictions, base_tsne=base_tsne)
+        compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, predictions, base_tsne=base_tsne)
     print()
 
     # Step 3: Generate CSVs + backgrounds
