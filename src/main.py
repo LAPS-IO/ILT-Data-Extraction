@@ -1,12 +1,15 @@
 import os
 import sys
-import tqdm
+
 import pandas as pd
+import tqdm
+
+from aux import defaults
 from batch import create_batches, move_images
+from data import (add_scale, generate_bkg, generate_thumbnails,
+                  label_predictions, remove_scale)
 from features import compute_features, get_model
 from projections import compute_projections
-from data import generate_bkg, generate_thumbnails, add_scale, remove_scale, label_predictions
-from aux import defaults
 
 
 def main():
@@ -68,21 +71,27 @@ def main():
         features, path_images, predictions = compute_features(images_folder, batch_id, model, weights_path)
         df = compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, predictions, base_tsne=base_tsne)
 
-    for i in tqdm.trange(num_batches, desc='Processing', unit='bat', ascii=True, ncols=80):
+    # Step 3: Generate CSVs + backgrounds
+    for i in tqdm.trange(num_batches, desc='CSVs/BKGs', unit='bat', ascii=True, ncols=80):
         batch_id = 'batch_{:04d}'.format(i + 1)
-        # Step 3: Generate CSVs + backgrounds
         generate_bkg(df_folder, images_folder, output_path, project_name, batch_id)
 
-        # Step 4: Generate thumbnails
+    # Step 4: Generate thumbnails
+    for i in tqdm.trange(num_batches, desc='Thumbnail', unit='bat', ascii=True, ncols=80):
+        batch_id = 'batch_{:04d}'.format(i + 1)
         input_path = os.path.join(images_folder, batch_id, defaults['inner_folder'])
         generate_thumbnails(input_path, thumbnails_folder, batch_id, defaults['thumbnails_size'])
 
-        # Step 5: Add scale to thumbnails
+    # Step 5: Add scale to thumbnails
+    for i in tqdm.trange(num_batches, desc='Add scale', unit='bat', ascii=True, ncols=80):
+        batch_id = 'batch_{:04d}'.format(i + 1)
         input_path = os.path.join(images_folder, batch_id, defaults['inner_folder'])
         add_scale(input_path, batch_id)
 
-        # Step 6: Label predictions
-        if not labels_path == '':
+    # Step 6: Label predictions
+    if not labels_path == '':
+        for i in tqdm.trange(num_batches, desc=' Labeling', unit='bat', ascii=True, ncols=80):
+            batch_id = 'batch_{:04d}'.format(i + 1)
             label_predictions(df_folder, labels_path, project_name, batch_id)
 
 
