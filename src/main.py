@@ -64,11 +64,13 @@ def main():
     features, path_images, predictions = compute_features(images_folder, base_id, model, weights_path)
     print('Computing base projections...')
     df, base_tsne = compute_projections(output_path, project_name, base_id, features, path_images, df_batches, predictions, compute_base=True, save=False)
-    num_batches = len(os.listdir(images_folder))
+    print()
 
+    num_batches = len(os.listdir(images_folder))
     df_folder = os.path.join(output_path, defaults['dataframes'])
 
     # Step 2: Extract data
+    print('Computing all features/projections...')
     for i in tqdm.trange(num_batches, desc='Feat/Proj', unit='bat', ascii=True, ncols=80):
         batch_id = 'batch_{:04d}'.format(i + 1)
         features, path_images, predictions = compute_features(images_folder, batch_id, model, weights_path)
