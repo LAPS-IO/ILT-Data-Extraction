@@ -34,7 +34,7 @@ def main():
             if not os.path.exists(labels_path):
                 print('Error! Label file not found!')
                 exit()
-            print('Weights:', weights_path, "\n", 'Labels :', labels_path, "\n")
+            print('Weights:', weights_path, "\n", 'Labels:', labels_path, "\n")
         else:
             weights_path, labels_path = '', ''
         try:
@@ -102,15 +102,19 @@ def main():
     end = timeit.default_timer()
     print('Total time:', timedelta(seconds=(end - start)), "\n")
 
-    # Step 5: Add scale to thumbnails
-    for i in tqdm.trange(num_batches, desc='Add scale', unit='bat', ascii=True, ncols=80):
-        batch_id = 'batch_{:04d}'.format(i + 1)
-        input_path = os.path.join(images_folder, batch_id, defaults['inner_folder'])
-        add_scale(input_path, batch_id)
+    # Step 5: Add scale
+    print('Adding scales to images...')
+    start = timeit.default_timer()
+    pool = mp.Pool(mp.cpu_count())
+    [pool.apply_async(add_scale, args=(images_folder, i + 1)) for i in range(num_batches)]
+    pool.close()
+    pool.join()
+    end = timeit.default_timer()
+    print('Total time:', timedelta(seconds=(end - start)), "\n")
 
     # Step 6: Label predictions
     if not labels_path == '':
-        for i in tqdm.trange(num_batches, desc=' Labeling', unit='bat', ascii=True, ncols=80):
+        for i in tqdm.trange(num_batches, desc='Labeling', unit='bat', ascii=True, ncols=80):
             batch_id = 'batch_{:04d}'.format(i + 1)
             label_predictions(df_folder, labels_path, project_name, batch_id)
 
