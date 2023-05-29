@@ -158,25 +158,27 @@ def map_of_images(df, xrange, yrange, images_folder, output_path, zoom, fig_size
 
     df_filtered = df[(df_x >= xrange[0]) & (df_x <= xrange[1]) & (df_y >= yrange[0]) & (df_y <= yrange[1])]
 
-    x = df_filtered['x']
-    y = df_filtered['y']
-    names = df_filtered['names']
+    with tqdm.trange(df_filtered.shape[0], desc=df['batch'].iloc[0], unit=" images", ascii=True, ncols=80) as pbar:
+        x = df_filtered['x']
+        y = df_filtered['y']
+        names = df_filtered['names']
 
-    f = plt.figure(figsize=(fig_size, fig_size), frameon=False)
-    ax = plt.Axes(f, [0., 0., 1., 1.])
-    ax.axis('off')
-    f.add_axes(ax)
-    ax.scatter(x, y, s=0)
+        f = plt.figure(figsize=(fig_size, fig_size), frameon=False)
+        ax = plt.Axes(f, [0., 0., 1., 1.])
+        ax.axis('off')
+        f.add_axes(ax)
+        ax.scatter(x, y, s=0)
 
-    for xs, ys, name in zip(x, y, names):
-        path = os.path.join(images_folder, name)
-        ab = AnnotationBbox(get_image(path, zoom=zoom), (xs, ys), frameon=False, box_alignment=(0, 1))
-        ax.add_artist(ab)
+        for xs, ys, name in zip(x, y, names):
+            path = os.path.join(images_folder, name)
+            ab = AnnotationBbox(get_image(path, zoom=zoom), (xs, ys), frameon=False, box_alignment=(0, 1))
+            ax.add_artist(ab)
+            pbar.update(1)
 
-    ax.set_xlim(xrange)
-    ax.set_ylim(yrange)
-    f.savefig(output_path, bbox_inches='tight', pad_inches=0, dpi=100)
-    plt.close(f)
+        ax.set_xlim(xrange)
+        ax.set_ylim(yrange)
+        f.savefig(output_path, bbox_inches='tight', pad_inches=0, dpi=100)
+        plt.close(f)
 
 
 def generate_bkg(backgrounds_folder, df_folder, images_folder, project_name, batch_num, range=100):

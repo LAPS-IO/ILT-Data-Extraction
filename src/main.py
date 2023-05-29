@@ -1,6 +1,10 @@
+import multiprocessing as mp
 import os
 import sys
+import timeit
+from datetime import timedelta
 
+import p_tqdm
 import pandas as pd
 import tqdm
 
@@ -70,14 +74,20 @@ def main():
         batch_id = 'batch_{:04d}'.format(i + 1)
         features, path_images, predictions = compute_features(images_folder, batch_id, model, weights_path)
         df = compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, predictions, base_tsne=base_tsne)
+    print()
 
     # Step 3: Generate CSVs + backgrounds
-    for i in tqdm.trange(num_batches, desc='CSVs/BKGs', unit='bat', ascii=True, ncols=80):
-        backgrounds_folder = os.path.join(output_path, defaults['backgrounds'])
-        if not os.path.isdir(backgrounds_folder):
-            os.mkdir(backgrounds_folder, mode=0o755)
-
-        generate_bkg(backgrounds_folder, df_folder, images_folder, project_name, i + 1)
+    print('Generating backgrounds...')
+    start = timeit.default_timer()
+    backgrounds_folder = os.path.join(output_path, defaults['backgrounds'])
+    if not os.path.isdir(backgrounds_folder):
+        os.mkdir(backgrounds_folder, mode=0o755)
+    pool = mp.Pool(mp.cpu_count())
+    [pool.apply_async(generate_bkg, args=(backgrounds_folder, df_folder, images_folder, project_name, i + 1)) for i in range(num_batches)]
+    pool.close()
+    pool.join()
+    end = timeit.default_timer()
+    print('Total time:', timedelta(seconds=(end - start)), "\n")
 
     # Step 4: Generate thumbnails
     for i in tqdm.trange(num_batches, desc='Thumbnail', unit='bat', ascii=True, ncols=80):
