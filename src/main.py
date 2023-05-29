@@ -62,13 +62,14 @@ def main():
     df_folder = os.path.join(output_path, defaults['dataframes'])
     thumbnails_folder = os.path.join(output_path, defaults['thumbnails'])
 
-    for i in tqdm.trange(num_batches, desc='Processing', unit='bat', ascii=True, ncols=80):
+    # Step 2: Extract data
+    for i in tqdm.trange(num_batches, desc='Feat/Proj', unit='bat', ascii=True, ncols=80):
         batch_id = 'batch_{:04d}'.format(i + 1)
-
-        # Step 2: Extract data
         features, path_images, predictions = compute_features(images_folder, batch_id, model, weights_path)
         df = compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, predictions, base_tsne=base_tsne)
 
+    for i in tqdm.trange(num_batches, desc='Processing', unit='bat', ascii=True, ncols=80):
+        batch_id = 'batch_{:04d}'.format(i + 1)
         # Step 3: Generate CSVs + backgrounds
         generate_bkg(df_folder, images_folder, output_path, project_name, batch_id)
 
