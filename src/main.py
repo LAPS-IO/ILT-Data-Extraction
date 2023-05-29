@@ -4,7 +4,6 @@ import sys
 import timeit
 from datetime import timedelta
 
-import p_tqdm
 import pandas as pd
 import tqdm
 
