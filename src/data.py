@@ -129,10 +129,8 @@ def remove_scale(input_folder):
 
 
 # rescale image for thumbnails
-def generate_thumbnails(input_path, thumbnails_folder, batch_id, max_size):
-    if not os.path.isdir(thumbnails_folder):
-        os.mkdir(thumbnails_folder, mode=0o755)
-
+def generate_thumbnails(input_path, thumbnails_folder, batch_num, max_size):
+    batch_id = 'batch_{:04d}'.format(batch_num)
     thumbnails_path = os.path.join(thumbnails_folder, batch_id)
     if not os.path.isdir(thumbnails_path):
         os.mkdir(thumbnails_path, mode=0o755)
@@ -141,7 +139,7 @@ def generate_thumbnails(input_path, thumbnails_folder, batch_id, max_size):
     if not os.path.isdir(inner_path):
         os.mkdir(inner_path, mode=0o755)
 
-    for img_name in os.listdir(input_path):
+    for img_name in tqdm.tqdm(os.listdir(input_path), desc=batch_id, unit="img", ascii=True, ncols=80):
         img = cv2.imread(os.path.join(input_path, img_name))
         if img.shape[0] > max_size:
             scale = img.shape[0] / max_size
@@ -158,7 +156,7 @@ def map_of_images(df, xrange, yrange, images_folder, output_path, zoom, fig_size
 
     df_filtered = df[(df_x >= xrange[0]) & (df_x <= xrange[1]) & (df_y >= yrange[0]) & (df_y <= yrange[1])]
 
-    with tqdm.trange(df_filtered.shape[0], desc=df['batch'].iloc[0], unit=" images", ascii=True, ncols=80) as pbar:
+    with tqdm.trange(df_filtered.shape[0], desc=df['batch'].iloc[0], unit="img", ascii=True, ncols=80) as pbar:
         x = df_filtered['x']
         y = df_filtered['y']
         names = df_filtered['names']

@@ -67,7 +67,6 @@ def main():
     num_batches = len(os.listdir(images_folder))
 
     df_folder = os.path.join(output_path, defaults['dataframes'])
-    thumbnails_folder = os.path.join(output_path, defaults['thumbnails'])
 
     # Step 2: Extract data
     for i in tqdm.trange(num_batches, desc='Feat/Proj', unit='bat', ascii=True, ncols=80):
@@ -90,10 +89,18 @@ def main():
     print('Total time:', timedelta(seconds=(end - start)), "\n")
 
     # Step 4: Generate thumbnails
-    for i in tqdm.trange(num_batches, desc='Thumbnail', unit='bat', ascii=True, ncols=80):
-        batch_id = 'batch_{:04d}'.format(i + 1)
-        input_path = os.path.join(images_folder, batch_id, defaults['inner_folder'])
-        generate_thumbnails(input_path, thumbnails_folder, batch_id, defaults['thumbnails_size'])
+    print('Generating thumbnails...')
+    start = timeit.default_timer()
+    input_path = os.path.join(images_folder, batch_id, defaults['inner_folder'])
+    thumbnails_folder = os.path.join(output_path, defaults['thumbnails'])
+    if not os.path.isdir(thumbnails_folder):
+        os.mkdir(thumbnails_folder, mode=0o755)
+    pool = mp.Pool(mp.cpu_count())
+    [pool.apply_async(generate_thumbnails, args=(input_path, thumbnails_folder, i + 1, defaults['thumbnails_size'])) for i in range(num_batches)]
+    pool.close()
+    pool.join()
+    end = timeit.default_timer()
+    print('Total time:', timedelta(seconds=(end - start)), "\n")
 
     # Step 5: Add scale to thumbnails
     for i in tqdm.trange(num_batches, desc='Add scale', unit='bat', ascii=True, ncols=80):
