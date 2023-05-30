@@ -15,6 +15,10 @@ from matplotlib.offsetbox import AnnotationBbox, OffsetImage
 from aux import defaults
 
 
+def update(progress_bar):
+    progress_bar.update(1)
+
+
 # generate dataframe
 def create_csv(df, csv_path):
     df = df.rename(columns={'klass': 'correct_label'})
@@ -125,7 +129,7 @@ def remove_scale(input_folder):
     with tqdm.trange(len(input_path), ascii=True, ncols=79, unit='batch') as pbar:
         with mp.Pool(mp.cpu_count()) as pool:
             for outer_folder in input_path:
-                pool.apply_async(purge_scale, callback=pbar.update(1), args=(input_folder, input_path, outer_folder))
+                pool.apply_async(purge_scale, callback=update(pbar), args=(input_folder, input_path, outer_folder))
             pool.close()
             pool.join()
     end = timeit.default_timer()

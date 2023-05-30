@@ -12,6 +12,10 @@ import tqdm
 from aux import defaults
 
 
+def update(progress_bar):
+    progress_bar.update(1)
+
+
 # Input:
 # (1) input_path: a string containing the path to the input dataset
 # (2) ouput_path: a string containing the path to the output folder
@@ -89,7 +93,7 @@ def move_images(input_path, df, dataset_path):
     with tqdm.trange(len(groups), ascii=True, ncols=79, unit='batch') as pbar:
         with mp.Pool(mp.cpu_count()) as pool:
             for group in groups:
-                pool.apply_async(move_batch_images, callback=pbar.update(1), args=(input_path, images_folder, group))
+                pool.apply_async(move_batch_images, callback=update(pbar), args=(input_path, images_folder, group))
             pool.close()
             pool.join()
     end = timeit.default_timer()
