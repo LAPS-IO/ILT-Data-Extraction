@@ -109,10 +109,13 @@ def main():
     thumbnails_folder = os.path.join(output_path, defaults['thumbnails'])
     if not os.path.isdir(thumbnails_folder):
         os.mkdir(thumbnails_folder, mode=0o755)
-    pool = mp.Pool(mp.cpu_count())
-    [pool.apply_async(generate_thumbnails, args=(input_path, thumbnails_folder, i + 1, defaults['thumbnails_size'])) for i in range(num_batches)]
-    pool.close()
-    pool.join()
+
+    with tqdm.trange(num_batches, ascii=True, ncols=79, unit='batch') as pbar:
+        with mp.Pool(mp.cpu_count()) as pool:
+            for i in range(num_batches):
+                pool.apply_async(generate_thumbnails, callback=update(pbar), args=(input_path, thumbnails_folder, i + 1, defaults['thumbnails_size']))
+            pool.close()
+            pool.join()
     end = timeit.default_timer()
     print('Total time:', timedelta(seconds=(end - start)), "\n")
 

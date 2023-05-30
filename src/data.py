@@ -143,7 +143,7 @@ def generate_thumbnails(input_path, thumbnails_folder, batch_num, max_size):
     if not os.path.isdir(inner_path):
         os.mkdir(inner_path, mode=0o755)
 
-    for img_name in tqdm.tqdm(os.listdir(input_path), desc=batch_id, unit="img", ascii=True, ncols=80):
+    for img_name in os.listdir(input_path):
         img = cv2.imread(os.path.join(input_path, img_name))
         if img.shape[0] > max_size:
             scale = img.shape[0] / max_size
