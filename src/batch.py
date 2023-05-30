@@ -46,8 +46,9 @@ def create_batches(input_path, output_path):
     print("Done creating batches!\n")
     return df
 
+
 def move_batch_images(input_path, images_folder, df):
-    for row in tqdm.tqdm(df.itertuples(), desc=df['batch'].iloc[0], unit='img', ascii=True, ncols=80):
+    for row in df.itertuples():
         batch_outer_folder = os.path.join(images_folder, row.batch)
         if not os.path.isdir(batch_outer_folder):
             os.mkdir(batch_outer_folder, mode=0o755)
@@ -82,9 +83,11 @@ def move_images(input_path, df, dataset_path):
     print('Moving images to ' + dataset_path)
     start = timeit.default_timer()
     groups = [splitted_df for _, splitted_df in df.groupby(df.batch)]
-    pool = mp.Pool(mp.cpu_count())
-    [pool.apply_async(move_batch_images, args=(input_path, images_folder, group)) for group in groups]
-    pool.close()
-    pool.join()
+    with tqdm.trange(len(groups), ascii=True, ncols=79, unit='batch') as pbar:
+        with mp.Pool(mp.cpu_count()) as pool:
+            for group in groups:
+                pool.apply_async(move_batch_images, callback=pbar.update(1), args=(input_path, images_folder, group))
+            pool.close()
+            pool.join()
     end = timeit.default_timer()
     print('Total time:', timedelta(seconds=(end - start)), "\n")
