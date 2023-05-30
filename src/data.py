@@ -101,7 +101,7 @@ def purge_scale(input_folder, input_path, outer_folder):
     class_path = os.path.join(input_folder, outer_folder)
     if os.path.isdir(class_path):
         inner_path = os.path.join(class_path, 'samples')
-        for inner_folder in tqdm.tqdm(os.listdir(inner_path), desc=outer_folder, unit='img', ascii=True, ncols=80):
+        for inner_folder in os.listdir(inner_path):
             img_path = os.path.join(inner_path, inner_folder)
             im = PIL.Image.open(img_path)
             arr = np.array(im)
@@ -122,10 +122,12 @@ def remove_scale(input_folder):
     start = timeit.default_timer()
     input_path = os.listdir(input_folder)
     input_path.sort()
-    pool = mp.Pool(mp.cpu_count())
-    [pool.apply_async(purge_scale, args=(input_folder, input_path, outer_folder)) for outer_folder in input_path]
-    pool.close()
-    pool.join()
+    with tqdm.trange(len(input_path), ascii=True, ncols=79, unit='batch') as pbar:
+        with mp.Pool(mp.cpu_count()) as pool:
+            for outer_folder in input_path:
+                pool.apply_async(purge_scale, callback=pbar.update(1), args=(input_folder, input_path, outer_folder))
+            pool.close()
+            pool.join()
     end = timeit.default_timer()
     print('Total time:', timedelta(seconds=(end - start)), "\n")
 
