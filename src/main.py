@@ -134,9 +134,12 @@ def main():
     # Step 6: Label predictions
     if not labels_path == '':
         print('Labeling predictions...')
+        start = timeit.default_timer()
         for i in tqdm.trange(num_batches, ascii=True, ncols=79, unit='batch'):
             batch_id = 'batch_{:04d}'.format(i + 1)
             label_predictions(df_folder, labels_path, project_name, batch_id)
+        end = timeit.default_timer()
+        print('Total time:', timedelta(seconds=(end - start)))
 
 
 if __name__ == '__main__':
