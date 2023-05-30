@@ -7,7 +7,7 @@ import tqdm
 def main(input_path):
     print('Looking for corrupt images in', input_path)
     imgs = []
-    for pwd, children, files in os.walk(input_path):
+    for pwd, children, files in tqdm.tqdm(os.walk(input_path), unit='folder'):
         rel_pwd = pwd[len(input_path) + 1:]
         imgs += [ (file, rel_pwd) for file in files if (file.endswith('.png') or file.endswith('.jpg')) ]
 
