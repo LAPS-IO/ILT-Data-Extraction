@@ -52,7 +52,6 @@ def create_batches(input_path, output_path):
 
 
 def move_batch_images(input_path, images_folder, df):
-    dropped_imgs = 0
     for row in df.itertuples():
         batch_outer_folder = os.path.join(images_folder, row.batch)
         if not os.path.isdir(batch_outer_folder):
@@ -68,8 +67,6 @@ def move_batch_images(input_path, images_folder, df):
         except:
             df.drop(row.Index, inplace=True)
             dropped_imgs += 1
-
-    return dropped_imgs
 
 
 # Inputs:
@@ -92,10 +89,9 @@ def move_images(input_path, df, dataset_path):
     groups = [splitted_df for _, splitted_df in df.groupby(df.batch)]
     with tqdm.trange(len(groups), ascii=True, ncols=79, unit='batch') as pbar:
         with mp.Pool(mp.cpu_count()) as pool:
-            results = [ pool.apply_async(move_batch_images, callback=update(pbar), args=(input_path, images_folder, group)) for group in groups ]
+            for group in groups:
+                pool.apply_async(move_batch_images, callback=update(pbar), args=(input_path, images_folder, group))
             pool.close()
             pool.join()
-    dropped_imgs = [r.get() for r in results]
     end = timeit.default_timer()
     print('Total time:', timedelta(seconds=(end - start)), "\n")
-    return sum(dropped_imgs)

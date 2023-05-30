@@ -55,10 +55,7 @@ def main():
 
     # Step 1: Create batches and remove scales
     df_batches = create_batches(input_path, output_path)
-    dropped = move_images(input_path, df_batches, output_path)
-    if dropped > 0:
-        print('Warning:', dropped, 'corrupt images were dropped.')
-
+    move_images(input_path, df_batches, output_path)
     remove_scale(os.path.join(output_path, defaults['images']))
 
     model = get_model(load=True, num_classes=defaults['num_classes'])
