@@ -80,7 +80,7 @@ def main():
 
     # Step 2: Extract data
     print('Computing all features/projections...')
-    for i in tqdm.trange(num_batches, desc='Feat/Proj', unit='bat', ascii=True, ncols=80):
+    for i in tqdm.trange(num_batches, ascii=True, ncols=79, unit='batch'):
         batch_id = 'batch_{:04d}'.format(i + 1)
         features, path_images, predictions = compute_features(images_folder, batch_id, model, weights_path)
         compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, predictions, base_tsne=base_tsne)
@@ -133,7 +133,8 @@ def main():
 
     # Step 6: Label predictions
     if not labels_path == '':
-        for i in tqdm.trange(num_batches, desc='Labeling', unit='bat', ascii=True, ncols=80):
+        print('Labeling predictions...')
+        for i in tqdm.trange(num_batches, ascii=True, ncols=79, unit='batch'):
             batch_id = 'batch_{:04d}'.format(i + 1)
             label_predictions(df_folder, labels_path, project_name, batch_id)
 
