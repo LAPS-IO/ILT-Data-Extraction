@@ -59,11 +59,11 @@ def move_batch_images(input_path, images_folder, df):
             os.mkdir(batch_folder, mode=0o755)
 
         original_path = os.path.join(input_path, row.klass, row.names)
-        if os.stat(original_path).st_size == 0:
+        try:
+            shutil.move(original_path, os.path.join(batch_folder, row.names))
+        except:
             df.drop(row.Index, inplace=True)
             dropped_imgs += 1
-        else:
-            shutil.move(original_path, os.path.join(batch_folder, row.names))
 
     return dropped_imgs
 
