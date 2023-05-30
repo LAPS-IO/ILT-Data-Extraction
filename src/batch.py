@@ -92,9 +92,10 @@ def move_images(input_path, df, dataset_path):
     groups = [splitted_df for _, splitted_df in df.groupby(df.batch)]
     with tqdm.trange(len(groups), ascii=True, ncols=79, unit='batch') as pbar:
         with mp.Pool(mp.cpu_count()) as pool:
-            for group in groups:
-                pool.apply_async(move_batch_images, callback=update(pbar), args=(input_path, images_folder, group))
+            results = [ pool.apply_async(move_batch_images, callback=update(pbar), args=(input_path, images_folder, group)) for group in groups ]
             pool.close()
             pool.join()
+    dropped_imgs = [r.get() for r in results]
     end = timeit.default_timer()
     print('Total time:', timedelta(seconds=(end - start)), "\n")
+    return sum(dropped_imgs)
