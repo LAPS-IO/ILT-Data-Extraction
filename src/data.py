@@ -60,7 +60,7 @@ def get_image(path, paint=False, color=(1, 1, 1), zoom=0.2, dim=255):
 def add_scale(images_folder, batch_num):
     batch_id = 'batch_{:04d}'.format(batch_num)
     input_path = os.path.join(images_folder, batch_id, defaults['inner_folder'])
-    for img_name in tqdm.tqdm(os.listdir(input_path), desc=batch_id, unit="img", ascii=True, ncols=80):
+    for img_name in os.listdir(input_path):
         img = cv2.imread(os.path.join(input_path, img_name))
         img_out = np.zeros([img.shape[0] + 30, img.shape[1] + 20, 3])
         img_out = 255 - img_out

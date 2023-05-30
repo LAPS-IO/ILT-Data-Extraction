@@ -122,10 +122,12 @@ def main():
     # Step 5: Add scale
     print('Adding scales to images...')
     start = timeit.default_timer()
-    pool = mp.Pool(mp.cpu_count())
-    [pool.apply_async(add_scale, args=(images_folder, i + 1)) for i in range(num_batches)]
-    pool.close()
-    pool.join()
+    with tqdm.trange(num_batches, ascii=True, ncols=79, unit='batch') as pbar:
+        with mp.Pool(mp.cpu_count()) as pool:
+            for i in range(num_batches):
+                pool.apply_async(add_scale, callback=update(pbar), args=(images_folder, i + 1))
+            pool.close()
+            pool.join()
     end = timeit.default_timer()
     print('Total time:', timedelta(seconds=(end - start)), "\n")
 
