@@ -48,6 +48,7 @@ def create_batches(input_path, output_path):
 
 
 def move_batch_images(input_path, images_folder, df):
+    dropped_imgs = 0
     for row in df.itertuples():
         batch_outer_folder = os.path.join(images_folder, row.batch)
         if not os.path.isdir(batch_outer_folder):
@@ -59,10 +60,12 @@ def move_batch_images(input_path, images_folder, df):
 
         original_path = os.path.join(input_path, row.klass, row.names)
         if os.stat(original_path).st_size == 0:
-            print('Warning: ', original_path, 'is not a valid image! Skipping...')
             df.drop(row.Index, inplace=True)
+            dropped_imgs += 1
         else:
             shutil.move(original_path, os.path.join(batch_folder, row.names))
+
+    return dropped_imgs
 
 
 # Inputs:
