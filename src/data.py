@@ -100,7 +100,6 @@ def add_scale(images_folder, batch_num):
         img_out.save(os.path.join(input_path, img_name))
 
 
-
 def purge_scale(input_folder, input_path, outer_folder):
     class_path = os.path.join(input_folder, outer_folder)
     if os.path.isdir(class_path):
@@ -209,4 +208,6 @@ def label_predictions(df_folder, label_path, project_name, batch_id):
     labels_d = {v: k for k, v in labels_d.items()}
     batch_df = pd.read_csv(os.path.join(df_folder, batch_id + '_' + project_name + '.csv'))
     batch_df['pred'] = batch_df['pred'].replace(labels_d)
+    batch_df['correct_label'] = batch_df['pred']
+    batch_df['manual_label'] = batch_df['pred']
     batch_df.to_csv(os.path.join(df_folder, batch_id + '_' + project_name + '.csv'), index=False)
