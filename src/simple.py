@@ -37,8 +37,6 @@ def main():
         else:
             weights_path, labels_path = '', ''
 
-    remove_scale(os.path.join(output_path, defaults['images']))
-
     model = get_model(load=True, num_classes=defaults['num_classes'])
     images_folder = os.path.join(output_path, defaults['images'])
     df_batches = pd.read_csv(os.path.join(output_path, 'batches.csv'), index_col=None)
