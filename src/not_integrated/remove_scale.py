@@ -15,11 +15,11 @@ def remove_scale(img_path):
         os.remove(img_path)
         return False
     else:
-        arr = np.array(img)
-        w, h = img.size
         clean = False
         passes = 0
         while(not clean):
+            w, h = img.size
+            arr = np.array(img)
             avg1 = np.mean(arr[0:10, 0:w])
             avg2 = np.mean(arr[10:h-10, 0:10])
             avg3 = np.mean(arr[10:h-10, w-10:w])
