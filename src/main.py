@@ -105,7 +105,6 @@ def main():
     # Step 4: Generate thumbnails
     print('Generating thumbnails...')
     start = timeit.default_timer()
-    input_path = os.path.join(images_folder, batch_id, defaults['inner_folder'])
     thumbnails_folder = os.path.join(output_path, defaults['thumbnails'])
     if not os.path.isdir(thumbnails_folder):
         os.mkdir(thumbnails_folder, mode=0o755)
@@ -113,6 +112,8 @@ def main():
     with tqdm.trange(num_batches, ascii=True, ncols=79, unit='batch') as pbar:
         with mp.Pool(mp.cpu_count()) as pool:
             for i in range(num_batches):
+                batch_id = 'batch_{:04d}'.format(i + 1)
+                input_path = os.path.join(images_folder, batch_id, defaults['inner_folder'])
                 pool.apply_async(generate_thumbnails, callback=update(pbar), args=(input_path, thumbnails_folder, i + 1, defaults['thumbnails_size']))
             pool.close()
             pool.join()
