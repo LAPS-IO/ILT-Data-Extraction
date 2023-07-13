@@ -1,7 +1,15 @@
 import os
 import sys
 
+import pandas as pd
 import tqdm
+from PIL import Image
+
+
+def clean_csv(csv_path, img_list):
+    df = pd.read_csv(csv_path)
+    df.drop(img_list, inplace=True)
+    df.to_csv(csv_path, index=None)
 
 
 def main(input_path):
@@ -14,13 +22,22 @@ def main(input_path):
 
     print('Looking for corrupt images in...')
     corrupt_list = open("%s.txt" % (os.path.basename(input_path)), 'w')
+    corrupt_list_base = []
     corrupt_imgs = 0
-    for img in tqdm.tqdm(imgs, unit='img'):
-        if os.stat(img).st_size == 0:
+    for img_path in tqdm.tqdm(imgs, unit='img'):
+        try:
+            img = Image.open(img_path)
+        except:
+            print('Error processing:', img_path)
             corrupt_imgs += 1
-            corrupt_list.write(img)
+            os.remove(img_path)
+            corrupt_list.write(img_path)
+            corrupt_list_base.append(os.path.basename(img_path))
     print('Found', corrupt_imgs, 'corrupt images!')
+    return corrupt_list_base
 
 
 if __name__ == '__main__':
-    main(os.path.abspath(sys.argv[1]))
+    corr_list = main(os.path.abspath(sys.argv[1]))
+    if len(argv) == 3:
+        clean_csv(os.path.abspath(sys.argv[2]), corr_list)
