@@ -29,10 +29,13 @@ def main(input_path):
             img = Image.open(img_path)
         except:
             print('Error processing:', img_path)
+            img.close()
             corrupt_imgs += 1
             os.remove(img_path)
             corrupt_list.write(img_path)
             corrupt_list_base.append(os.path.basename(img_path))
+        else:
+            img.close()
     print('Found', corrupt_imgs, 'corrupt images!')
     return corrupt_list_base
 
