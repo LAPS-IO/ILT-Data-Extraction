@@ -4,11 +4,13 @@ import numpy as np
 import openTSNE
 import pandas as pd
 import sklearn.manifold
+from PIL import ImageFile
 
 from aux import defaults
 
 
 def tsne_fit(features, n=1):
+    ImageFile.LOAD_TRUNCATED_IMAGES = True
     tsne_results = sklearn.manifold.TSNE(n_components=n,
                                          learning_rate='auto',
                                          init='random',
@@ -23,6 +25,7 @@ def opentsne_fit(features, n=2):
         metric="cosine",
         random_state=0,
     )
+    ImageFile.LOAD_TRUNCATED_IMAGES = True
     tsne_results = tsne.fit(features)
     return tsne_results
 
