@@ -207,6 +207,7 @@ def label_predictions(df_folder, label_path, project_name, batch_id):
     labels_d = json.load(json_file)
     labels_d = {v: k for k, v in labels_d.items()}
     batch_df = pd.read_csv(os.path.join(df_folder, batch_id + '_' + project_name + '.csv'))
+    batch_df['colors'] = batch_df['pred'] + 1
     batch_df['pred'] = batch_df['pred'].replace(labels_d)
     batch_df['correct_label'] = batch_df['pred']
     batch_df['manual_label'] = batch_df['pred']
