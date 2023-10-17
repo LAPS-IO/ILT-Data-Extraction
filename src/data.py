@@ -201,10 +201,14 @@ def generate_bkg(backgrounds_folder, df_folder, images_folder, project_name, bat
     csv_path = os.path.join(df_folder, batch_id + '_' + project_name + '.csv')
     create_csv(df, csv_path)
 
-
-def label_predictions(df_folder, label_path, project_name, batch_id):
+def read_labels(label_path):
     json_file = open(label_path)
     labels_d = json.load(json_file)
+    
+    return labels_d
+
+def label_predictions(df_folder, label_path, project_name, batch_id):
+    labels_d = read_labels(label_path)
     labels_d = {v: k for k, v in labels_d.items()}
     batch_df = pd.read_csv(os.path.join(df_folder, batch_id + '_' + project_name + '.csv'))
     batch_df['colors'] = batch_df['pred'] + 1

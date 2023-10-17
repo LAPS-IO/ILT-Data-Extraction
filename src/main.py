@@ -10,7 +10,7 @@ import tqdm
 from aux import defaults
 from batch import create_batches, move_images
 from data import (add_scale, generate_bkg, generate_thumbnails,
-                  label_predictions, remove_scale)
+                  label_predictions, remove_scale, read_labels)
 from features import compute_features, get_model
 from projections import compute_projections
 
@@ -57,8 +57,13 @@ def main():
     df_batches = create_batches(input_path, output_path)
     move_images(input_path, df_batches, output_path)
     remove_scale(os.path.join(output_path, defaults['images']))
+    
+    num_classes = defaults['num_classes']
+    if not labels_path == '':
+        labels_dict = read_labels(labels_path)
+        num_classes = len(labels_dict)
 
-    model = get_model(load=True, num_classes=defaults['num_classes'])
+    model = get_model(load=True, num_classes=num_classes)
     images_folder = os.path.join(output_path, defaults['images'])
     df_batches = pd.read_csv(os.path.join(output_path, 'batches.csv'), index_col=None)
 
