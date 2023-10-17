@@ -11,6 +11,8 @@ matplotlib = "*"
 tqdm = "*"
 torch = "*"
 torchvision = "*"
+psutil = "*"
+focal_loss_torch = "*"
 
 [dev-packages]
 
