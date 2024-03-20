@@ -61,45 +61,6 @@ def get_image(path, paint=False, color=(1, 1, 1), zoom=0.2, dim=255):
     return OffsetImage(img, zoom=zoom)
 
 
-def add_scale(images_folder, batch_num):
-    batch_id = 'batch_{:04d}'.format(batch_num)
-    input_path = os.path.join(images_folder, batch_id, defaults['inner_folder'])
-    for img_name in os.listdir(input_path):
-        img = cv2.imread(os.path.join(input_path, img_name))
-        img_out = np.zeros([img.shape[0] + 30, img.shape[1] + 20, 3])
-        img_out = 255 - img_out
-
-        img_out[10:img.shape[0] + 10, 10:img.shape[1] + 10] = img
-        units = defaults['pixel_size'] * img.shape[1] * defaults['ruler_ratio']
-        units = int(round(units / 100))
-
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        size = 100 * units
-        if size > 900:
-            size = 1000
-        ruler_size = int(round(size / defaults['pixel_size']))
-
-        img_out = PIL.Image.fromarray(np.uint8(img_out)).convert('RGB')
-        draw = PIL.ImageDraw.Draw(img_out)
-
-        if size < 1000:
-            text = str(size) + ' µm'
-        else:
-            text = str(int(size / 1000)) + ' mm'
-        draw.text((12, img.shape[0] + 12), text, (0, 0, 0))
-
-        shape = [(10, img.shape[0] + 25), (ruler_size + 10, img.shape[0] + 25)]
-        draw.line(shape, fill='black', width=1)
-
-        shape = [(10, img.shape[0] + 23), (10, img.shape[0] + 27)]
-        draw.line(shape, fill='black', width=1)
-
-        shape = [(ruler_size + 10, img.shape[0] + 23), (ruler_size + 10, img.shape[0] + 27)]
-        draw.line(shape, fill='black', width=1)
-
-        img_out.save(os.path.join(input_path, img_name))
-
-
 def purge_scale(input_folder, input_path, outer_folder):
     class_path = os.path.join(input_folder, outer_folder)
     if os.path.isdir(class_path):
