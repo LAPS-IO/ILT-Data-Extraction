@@ -54,7 +54,7 @@ def main():
 
     # Step 1: Create batches and remove scales
     df_batches = create_batches(input_path, output_path)
-    move_images(input_path, df_batches, output_path)
+    symlink_images(input_path, df_batches, output_path)
     
     num_classes = defaults['num_classes']
     if not labels_path == '':

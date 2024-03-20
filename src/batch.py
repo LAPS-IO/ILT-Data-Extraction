@@ -50,7 +50,7 @@ def create_batches(input_path, output_path):
     return df
 
 
-def move_batch_images(input_path, images_folder, df):
+def symlink_batch_images(input_path, images_folder, df):
     for row in df.itertuples():
         batch_outer_folder = os.path.join(images_folder, row.batch)
         if not os.path.isdir(batch_outer_folder):
@@ -62,7 +62,7 @@ def move_batch_images(input_path, images_folder, df):
 
         original_path = os.path.join(input_path, row.klass, row.names)
         try:
-            shutil.move(original_path, os.path.join(batch_folder, row.names))
+            os.symlink(original_path, os.path.join(batch_folder, row.names))
         except:
             df.drop(row.Index, inplace=True)
             dropped_imgs += 1
@@ -79,7 +79,7 @@ def move_batch_images(input_path, images_folder, df):
   # (3) moves the images from the input_path into their respective batches
 # Output:
   # None
-def move_images(input_path, df, dataset_path):
+def symlink_images(input_path, df, dataset_path):
     images_folder = os.path.join(dataset_path, defaults['images'])
     os.mkdir(images_folder, mode=0o755)
 
@@ -89,7 +89,7 @@ def move_images(input_path, df, dataset_path):
     with tqdm.trange(len(groups), ascii=True, ncols=79, unit='batch') as pbar:
         with mp.Pool(mp.cpu_count()) as pool:
             for group in groups:
-                pool.apply_async(move_batch_images, callback=update(pbar), args=(input_path, images_folder, group))
+                pool.apply_async(symlink_batch_images, callback=update(pbar), args=(input_path, images_folder, group))
             pool.close()
             pool.join()
     end = timeit.default_timer()
