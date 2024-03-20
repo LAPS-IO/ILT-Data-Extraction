@@ -61,63 +61,6 @@ def get_image(path, paint=False, color=(1, 1, 1), zoom=0.2, dim=255):
     return OffsetImage(img, zoom=zoom)
 
 
-def purge_scale(input_folder, input_path, outer_folder):
-    class_path = os.path.join(input_folder, outer_folder)
-    if os.path.isdir(class_path):
-        inner_path = os.path.join(class_path, 'samples')
-        for inner_folder in os.listdir(inner_path):
-            img_path = os.path.join(inner_path, inner_folder)
-            im = PIL.Image.open(img_path)
-            arr = np.array(im)
-            w, h = im.size
-            avg1 = np.mean(arr[0:10, 0:w])
-            avg2 = np.mean(arr[10:h - 10, 0:10])
-            avg3 = np.mean(arr[10:h - 10, w - 10:w])
-            avg = (avg1 + avg2 + avg3) / 3
-            if avg > 240:
-                resized = im.crop((10, 10, w - 10, h - 20))
-                resized.save(img_path)
-                resized.close()
-            im.close()
-
-
-def remove_scale(input_folder):
-    print('Removing scales')
-    start = timeit.default_timer()
-    input_path = os.listdir(input_folder)
-    input_path.sort()
-    with tqdm.trange(len(input_path), ascii=True, ncols=79, unit='batch') as pbar:
-        with mp.Pool(mp.cpu_count()) as pool:
-            for outer_folder in input_path:
-                pool.apply_async(purge_scale, callback=update(pbar), args=(input_folder, input_path, outer_folder))
-            pool.close()
-            pool.join()
-    end = timeit.default_timer()
-    print('Total time:', timedelta(seconds=(end - start)), "\n")
-
-
-# rescale image for thumbnails
-def generate_thumbnails(input_path, thumbnails_folder, batch_num, max_size):
-    batch_id = 'batch_{:04d}'.format(batch_num)
-    thumbnails_path = os.path.join(thumbnails_folder, batch_id)
-    if not os.path.isdir(thumbnails_path):
-        os.mkdir(thumbnails_path, mode=0o755)
-
-    inner_path = os.path.join(thumbnails_path, defaults['inner_folder'])
-    if not os.path.isdir(inner_path):
-        os.mkdir(inner_path, mode=0o755)
-
-    for img_name in os.listdir(input_path):
-        img = cv2.imread(os.path.join(input_path, img_name))
-        if img.shape[0] > max_size:
-            scale = img.shape[0] / max_size
-            dims = (int(img.shape[1] / scale), int(img.shape[0] / scale))
-            img = cv2.resize(img, dims, interpolation=cv2.INTER_AREA)
-
-        output_name = os.path.join(inner_path, img_name)
-        cv2.imwrite(output_name, img)
-
-
 def map_of_images(df, xrange, yrange, images_folder, output_path, zoom, fig_size=40):
     df_x = pd.to_numeric(df['x'])
     df_y = pd.to_numeric(df['y'])

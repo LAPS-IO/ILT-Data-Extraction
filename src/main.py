@@ -9,8 +9,7 @@ import tqdm
 
 from aux import defaults
 from batch import create_batches, move_images
-from data import (generate_bkg, generate_thumbnails,
-                  label_predictions, remove_scale, read_labels)
+from data import (generate_bkg, label_predictions, remove_scale, read_labels)
 from features import compute_features, get_model
 from projections import compute_projections
 
@@ -106,25 +105,7 @@ def main():
     end = timeit.default_timer()
     print('Total time:', timedelta(seconds=(end - start)), "\n")
 
-    # Step 4: Generate thumbnails
-    print('Generating thumbnails...')
-    start = timeit.default_timer()
-    thumbnails_folder = os.path.join(output_path, defaults['thumbnails'])
-    if not os.path.isdir(thumbnails_folder):
-        os.mkdir(thumbnails_folder, mode=0o755)
-
-    with tqdm.trange(num_batches, ascii=True, ncols=79, unit='batch') as pbar:
-        with mp.Pool(mp.cpu_count()) as pool:
-            for i in range(num_batches):
-                batch_id = 'batch_{:04d}'.format(i + 1)
-                input_path = os.path.join(images_folder, batch_id, defaults['inner_folder'])
-                pool.apply_async(generate_thumbnails, callback=update(pbar), args=(input_path, thumbnails_folder, i + 1, defaults['thumbnails_size']))
-            pool.close()
-            pool.join()
-    end = timeit.default_timer()
-    print('Total time:', timedelta(seconds=(end - start)), "\n")
-
-    # Step 6: Label predictions
+    # Step 4: Label predictions
     if not labels_path == '':
         print('Labeling predictions...')
         start = timeit.default_timer()
