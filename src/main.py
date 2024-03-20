@@ -36,9 +36,12 @@ def main():
             if not os.path.exists(labels_path):
                 print('Error! Label file not found!')
                 exit()
+            labels_dict = read_labels(labels_path)
+            num_classes = len(labels_dict)
             print('Weights:', weights_path, "\n", 'Labels:', labels_path, "\n")
         else:
             weights_path, labels_path = '', ''
+            num_classes = defaults['num_classes']
         try:
             os.mkdir(output_path, mode=0o755)
         except FileNotFoundError:
@@ -56,11 +59,6 @@ def main():
     df_batches = create_batches(input_path, output_path)
     symlink_images(input_path, df_batches, output_path)
     
-    num_classes = defaults['num_classes']
-    if not labels_path == '':
-        labels_dict = read_labels(labels_path)
-        num_classes = len(labels_dict)
-
     model = get_model(load=True, num_classes=num_classes)
     images_folder = os.path.join(output_path, defaults['images'])
     df_batches = pd.read_csv(os.path.join(output_path, 'batches.csv'), index_col=None)
