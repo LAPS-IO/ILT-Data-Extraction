@@ -38,7 +38,7 @@ def main():
                 exit()
             labels_dict = read_labels(labels_path)
             num_classes = len(labels_dict)
-            print('Weights:', weights_path, "\n", 'Labels:', labels_path, "\n")
+            print('Num Classes:', num_classes, "\n",'Weights:', weights_path, "\n", 'Labels:', labels_path, "\n")
         else:
             weights_path, labels_path = '', ''
             num_classes = defaults['num_classes']
@@ -104,7 +104,7 @@ def main():
     print('Total time:', timedelta(seconds=(end - start)), "\n")
 
     # Step 4: Label predictions
-    if not labels_path == '':
+    if labels_path != '':
         print('Labeling predictions...')
         start = timeit.default_timer()
         for i in tqdm.trange(num_batches, ascii=True, ncols=79, unit='batch'):
