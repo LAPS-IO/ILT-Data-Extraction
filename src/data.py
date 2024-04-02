@@ -118,3 +118,9 @@ def label_predictions(batch_df, label_path):
     batch_df['pred'] = batch_df['pred'].replace(labels_d)
     batch_df['correct_label'] = batch_df['pred']
     batch_df['manual_label'] = batch_df['pred']
+
+def clean_merge_dfs(df1, df2):
+    df2.drop(['x', 'y', 'correct_label', 'manual_label', 'colors',
+              'custom_data', 'x2', 'y2', 'x3', 'y3',
+              'D1', 'D4', 'D7', 'thumbnails'], axis=1, inplace=True)
+    return pd.concat([df1, df2])
