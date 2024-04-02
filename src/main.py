@@ -109,7 +109,10 @@ def main():
         start = timeit.default_timer()
         for i in tqdm.trange(num_batches, ascii=True, ncols=79, unit='batch'):
             batch_id = 'batch_{:04d}'.format(i + 1)
-            label_predictions(df_folder, labels_path, project_name, batch_id)
+            df_path = os.path.join(df_folder, batch_id + '_' + project_name + '.csv')
+            batch_df = pd.read_csv(df_path)
+            label_predictions(batch_df, labels_path)
+            batch_df.to_csv(df_path, index=False)
         end = timeit.default_timer()
         print('Total time:', timedelta(seconds=(end - start)))
 
