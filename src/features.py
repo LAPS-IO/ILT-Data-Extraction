@@ -85,7 +85,7 @@ def register_hooks(model,):
 def compute_features(images_folder, batch_id, model, weights_path):
     global activation
 
-    batch_size = 32
+    batch_size = 256
     device = 'cuda'
 
     lr = 3e-5
@@ -127,12 +127,12 @@ def compute_features(images_folder, batch_id, model, weights_path):
     with torch.no_grad():
         for data, paths in test_loader:
             data = data.to(device)
-            with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=use_amp):
+            with torch.cuda.amp.autocast(dtype=torch.float16):
                 output = model(data)
+                aux = torch.amax(activation['layer4'], (2, 3))
                 if features is None:
-                    features = torch.amax(activation['layer4'], (2, 3))
+                    features = aux
                 else:
-                    aux = torch.amax(activation['layer4'], (2, 3))
                     features = torch.vstack((features, aux))
 
             paths = list(paths)
@@ -144,8 +144,6 @@ def compute_features(images_folder, batch_id, model, weights_path):
                 paths[i] = os.path.basename(paths[i])
             predictions.extend(preds_list)
             path_images.extend(paths)
-
         features = features.cpu().detach().numpy()
-    end = timeit.default_timer()
 
     return features, path_images, predictions
