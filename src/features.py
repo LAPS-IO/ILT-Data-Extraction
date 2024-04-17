@@ -85,7 +85,7 @@ def register_hooks(model,):
 def compute_features(images_folder, batch_id, model, weights_path):
     global activation
 
-    batch_size = 256
+    batch_size = 32
     device = 'cuda'
 
     lr = 3e-5
