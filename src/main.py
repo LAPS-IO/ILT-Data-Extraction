@@ -84,22 +84,6 @@ def main():
         compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, predictions, base_tsne=base_tsne)
     print()
 
-    # Step 3: Generate CSVs + backgrounds
-    print('Generating backgrounds...')
-    start = timeit.default_timer()
-    backgrounds_folder = os.path.join(output_path, defaults['backgrounds'])
-    if not os.path.isdir(backgrounds_folder):
-        os.mkdir(backgrounds_folder, mode=0o755)
-
-    with tqdm.tqdm(range(0, num_batches), ascii=True, ncols=79, unit='bat') as pbar:
-        with mp.Pool(mp.cpu_count()) as pool:
-            for i in range(num_batches):
-                pool.apply_async(generate_bkg, callback=update(pbar), args=(backgrounds_folder, df_folder, images_folder, project_name, i + 1))
-            pool.close()
-            pool.join()
-    end = timeit.default_timer()
-    print('Total time:', timedelta(seconds=(end - start)), "\n")
-
     # Step 4: Label predictions
     if labels_path != '':
         print('Labeling predictions...')
