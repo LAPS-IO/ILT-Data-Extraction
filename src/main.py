@@ -81,7 +81,7 @@ def main():
 
     # Step 2: Extract data
     print('Computing all features/projections...')
-    for i in tqdm.trange(num_batches, ascii=True, ncols=79, unit='batch'):
+    for i in tqdm.tqdm(range(0, num_batches), ascii=True, ncols=79, unit='bat'):
         batch_id = 'batch_{:04d}'.format(i + 1)
         features, path_images, predictions = compute_features(images_folder, batch_id, model, weights_path)
         compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, predictions, base_tsne=base_tsne)
@@ -94,7 +94,7 @@ def main():
     if not os.path.isdir(backgrounds_folder):
         os.mkdir(backgrounds_folder, mode=0o755)
 
-    with tqdm.trange(num_batches, ascii=True, ncols=79, unit='batch') as pbar:
+    with tqdm.tqdm(range(0, num_batches), ascii=True, ncols=79, unit='bat') as pbar:
         with mp.Pool(mp.cpu_count()) as pool:
             for i in range(num_batches):
                 pool.apply_async(generate_bkg, callback=update(pbar), args=(backgrounds_folder, df_folder, images_folder, project_name, i + 1))
@@ -108,7 +108,7 @@ def main():
         print('Labeling predictions...')
         full_df = pd.DataFrame()
         start = timeit.default_timer()
-        for i in tqdm.trange(num_batches, ascii=True, ncols=79, unit='batch'):
+        for i in tqdm.tqdm(range(0, num_batches), ascii=True, ncols=79, unit='bat'):
             batch_id = 'batch_{:04d}'.format(i + 1)
             df_path = os.path.join(df_folder, batch_id + '_' + project_name + '.csv')
             batch_df = pd.read_csv(df_path)
