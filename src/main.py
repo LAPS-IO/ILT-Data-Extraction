@@ -47,9 +47,6 @@ def main():
         except FileNotFoundError:
             print('Output folder is invalid, please check!')
             exit()
-        except FileExistsError:
-            print('Output folder already exists! Please provide a name for a new folder instead.')
-            exit()
     else:
         print('Wrong number of arguments!')
         print('Usage: main.py <input_folder> <output_folder> [<model_path> <label_path > (optionals)]')
