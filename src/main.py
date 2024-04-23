@@ -9,7 +9,7 @@ import tqdm
 
 from aux import defaults
 from batch import create_batches, symlink_images
-from data import (generate_bkg, label_predictions, read_labels, clean_merge_dfs)
+from data import (generate_bkg, label_predictions, read_labels)
 from features import compute_features, get_model
 from projections import compute_projections
 
@@ -110,8 +110,8 @@ def main():
             df_path = os.path.join(df_folder, batch_id + '_' + project_name + '.csv')
             batch_df = pd.read_csv(df_path)
             label_predictions(batch_df, labels_path)
+            full_df = pd.concat([full_df, batch_df[["names", "pred"]]], ignore_index=True)
             batch_df.to_csv(df_path, index=False)
-            full_df = clean_merge_dfs(full_df, batch_df)
         full_df.to_csv(os.path.join(output_path, 'complete.csv'), index=False)
         end = timeit.default_timer()
         print('Total time:', timedelta(seconds=(end - start)))
