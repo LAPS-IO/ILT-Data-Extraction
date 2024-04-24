@@ -41,7 +41,7 @@ class CustomDataset(Dataset):
         img_transformed = self.transform(img)
         
         label = img_path.split("/")[-2]
-        label_id = self.map_label[label]
+        label_id = [i for i in self.map_label if self.map_label[i] == label][0]
         
         return img_transformed, label_id, img_path
 
@@ -133,7 +133,7 @@ def run(images_path, save_path, save_name, train_name = 'train', valid_name = 'v
     batch_size = 30
 
     for c in labels:
-        map_label[c] = label_id
+        map_label[label_id] = c
         label_id += 1
 
     labels_ids = [i for i in range(len(labels))]
