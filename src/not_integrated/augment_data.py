@@ -8,11 +8,10 @@ def rotate3(img, filename):
         img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
         cv2.imwrite(f'{filename[:-4]}_rot{i}{filename[-4:]}', img)
 
-def flip2(img, filename):
-    flip_opt = {0: 'x', 1: 'y'}
-    for i in flip_opt:
-        flip = cv2.flip(img, i)
-        cv2.imwrite(f'{filename[:-4]}_flip_{flip_opt[i]}{filename[-4:]}', flip)
+def blur(img, filename):
+    for k in range(10, 16, 5):
+        blur = cv2.blir(img, (k, k))
+        cv2.imwrite(f'{filename[:-4]}_blur_{k}{filename[-4:]}', blur)
 
 def main():
     input_path = os.path.abspath(sys.argv[1])
@@ -25,7 +24,7 @@ def main():
     for img_name in tqdm.tqdm(imgs, unit='img'):
         img = cv2.imread(img_name)
         rotate3(img, img_name)
-        flip2(img, img_name)
+        blur(img, img_name)
 
 
 if __name__ == '__main__':
