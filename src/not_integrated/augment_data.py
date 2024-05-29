@@ -10,7 +10,7 @@ def rotate3(img, filename):
 
 def blur(img, filename):
     for k in range(10, 16, 5):
-        blur = cv2.blir(img, (k, k))
+        blur = cv2.blur(img, (k, k))
         cv2.imwrite(f'{filename[:-4]}_blur_{k}{filename[-4:]}', blur)
 
 def main():
