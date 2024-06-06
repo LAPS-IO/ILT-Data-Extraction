@@ -15,6 +15,7 @@ def image_list(input_path):
 
 def main():
     all_imgs = image_list(os.path.abspath(sys.argv[2]))
+    print(all_imgs[0])
     print('Filtering images in:', sys.argv[1])
     for pwd, chd, csvs in os.walk(sys.argv[1]):
         for csv in csvs:
@@ -22,6 +23,7 @@ def main():
             filtered_imgs = []
             df = pd.read_csv(pwd + '/' + csv)
             for t in df.itertuples():
+                print(t)
                 filtered_imgs.append(all_imgs[t[2]])
 
             print('Writing filtered images to:', os.path.abspath(sys.argv[3]))
