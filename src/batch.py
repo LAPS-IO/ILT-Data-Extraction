@@ -25,8 +25,15 @@ def update(progress_bar):
 def create_batches(input_path, output_path):
     print('Creating batches...')
     imgs = []
-    for pwd, children, files in os.walk(input_path):
-        imgs += [ (file, os.path.basename(pwd)) for file in files if (file.endswith('.png') or file.endswith('.jpg')) ]
+    if os.path.isdir(input_path):
+        for pwd, children, files in os.walk(input_path):
+            imgs += [ (file, os.path.basename(pwd)) for file in files if (file.endswith('.png') or file.endswith('.jpg')) ]
+    else:
+        img_list = open(input_path, 'r')
+        for img in img_list:
+            img = img.strip()
+            imgs.append((os.path.basename(img), os.path.dirname(img)))
+        img_list.close()
 
     num_batches = math.ceil(len(imgs) / defaults['BATCH_MAX_SIZE'])
     images_per_batch = math.ceil(len(imgs) / num_batches)

@@ -21,9 +21,6 @@ def update(progress_bar):
 def read_paths(argv):
     input_path = os.path.abspath(argv[1])
     output_path = os.path.abspath(argv[2])
-    if not os.path.isdir(input_path):
-        print('Input folder is invalid, please check!')
-        exit()
     try:
         os.mkdir(output_path, mode=0o755)
     except FileNotFoundError:
