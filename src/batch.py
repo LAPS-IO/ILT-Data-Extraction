@@ -46,10 +46,10 @@ def create_batches(input_path, output_path):
 
     i = 1
     while count > images_per_batch:
-        batches.extend(['batch_{:04d}'.format(i)] * images_per_batch)
+        batches += [f'batch_{i:04d}'] * images_per_batch
         count -= images_per_batch
         i += 1
-    batches.extend(['batch_{:04d}'.format(i)] * count)
+    batches += [f'batch_{i:04d}'] * count
 
     df['batch'] = batches
     df.to_csv(os.path.join(output_path, 'batches.csv'), index=None)
@@ -90,7 +90,7 @@ def symlink_images(input_path, df, dataset_path):
     images_folder = os.path.join(dataset_path, defaults['images'])
     os.mkdir(images_folder, mode=0o755)
 
-    print('Moving images to ' + dataset_path)
+    print(f'Moving images to {dataset_path}')
     start = timeit.default_timer()
     groups = [splitted_df for _, splitted_df in df.groupby(df.batch)]
     with tqdm.trange(len(groups), ascii=True, ncols=79, unit='batch') as pbar:
@@ -100,4 +100,4 @@ def symlink_images(input_path, df, dataset_path):
             pool.close()
             pool.join()
     end = timeit.default_timer()
-    print('Total time:', timedelta(seconds=(end - start)), "\n")
+    print(f'Total time: {timedelta(seconds=(end - start))}\n')
