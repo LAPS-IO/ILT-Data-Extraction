@@ -12,10 +12,6 @@ import tqdm
 from aux import defaults
 
 
-def update(progress_bar):
-    progress_bar.update(1)
-
-
 # Input:
 # (1) input_path: a string containing the path to the input dataset
 # (2) ouput_path: a string containing the path to the output folder
@@ -90,14 +86,12 @@ def symlink_images(input_path, df, dataset_path):
     images_folder = os.path.join(dataset_path, defaults['images'])
     os.mkdir(images_folder, mode=0o755)
 
-    print(f'Moving images to {dataset_path}')
+    print(f'Creating image symlinks to {dataset_path}')
     start = timeit.default_timer()
     groups = [splitted_df for _, splitted_df in df.groupby(df.batch)]
-    with tqdm.trange(len(groups), ascii=True, ncols=79, unit='batch') as pbar:
-        with mp.Pool(mp.cpu_count()) as pool:
-            for group in groups:
-                pool.apply_async(symlink_batch_images, callback=update(pbar), args=(input_path, images_folder, group))
-            pool.close()
-            pool.join()
+    args = [(input_path, images_folder, group) for group in groups]
+    with mp.Pool(mp.cpu_count()) as pool:
+        result = pool.starmap_async(symlink_batch_images, args)
+        result.wait()
     end = timeit.default_timer()
     print(f'Total time: {timedelta(seconds=(end - start))}\n')
