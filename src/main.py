@@ -18,39 +18,51 @@ def update(progress_bar):
     progress_bar.update(1)
 
 
+def read_paths(argv):
+    input_path = os.path.abspath(argv[1])
+    output_path = os.path.abspath(argv[2])
+    if not os.path.isdir(input_path):
+        print('Input folder is invalid, please check!')
+        exit()
+    try:
+        os.mkdir(output_path, mode=0o755)
+    except FileNotFoundError:
+        print('Output folder is invalid, please check!')
+        exit()
+    except FileExistsError:
+        print('Output folder already exists, please check!')
+        exit()
+    return input_path, output_path
+
+
+def read_network(argv):
+    weights_path = os.path.abspath(sys.argv[3])
+    labels_path = os.path.abspath(sys.argv[4])
+    if not os.path.exists(weights_path):
+        print('Error! Model file not found!')
+        exit()
+    if not os.path.exists(labels_path):
+        print('Error! Label file not found!')
+        exit()
+    return weights_path, labels_path
+
+
 def main():
-    # read argv
-    if len(sys.argv) > 2:
-        input_path = os.path.abspath(sys.argv[1])
-        output_path = os.path.abspath(sys.argv[2])
-        project_name = os.path.basename(output_path)
-        if not os.path.isdir(input_path):
-            print('Input folder is invalid, please check!')
-            exit()
-        if len(sys.argv) == 5:
-            weights_path = os.path.abspath(sys.argv[3])
-            if not os.path.exists(weights_path):
-                print('Error! Model file not found!')
-                exit()
-            labels_path = os.path.abspath(sys.argv[4])
-            if not os.path.exists(labels_path):
-                print('Error! Label file not found!')
-                exit()
-            labels_dict = read_labels(labels_path)
-            num_classes = len(labels_dict)
-            print('Num Classes:', num_classes, "\n",'Weights:', weights_path, "\n", 'Labels:', labels_path, "\n")
-        else:
+    input_path, output_path = read_paths(sys.argv)
+    match len(sys.argv):
+        case 3:
             weights_path, labels_path = '', ''
             num_classes = defaults['num_classes']
-        try:
-            os.mkdir(output_path, mode=0o755)
-        except FileNotFoundError:
-            print('Output folder is invalid, please check!')
+        case 5:
+            weights_path, labels_path = read_network(sys.argv)
+            labels_dict = read_labels(labels_path)
+            num_classes = len(labels_dict)
+            print(f'Num Classes: {num_classes}\nWeights: {weights_path}\nLabels: {labels_path}')
+        case _:
+            print('Wrong number of arguments!')
+            print('Usage: main.py <input_folder> <output_folder> [<model_path> <label_path > (optionals)]')
             exit()
-    else:
-        print('Wrong number of arguments!')
-        print('Usage: main.py <input_folder> <output_folder> [<model_path> <label_path > (optionals)]')
-        exit()
+    project_name = os.path.basename(output_path)
 
     # Step 1: Create batches and remove scales
     df_batches = create_batches(input_path, output_path)
