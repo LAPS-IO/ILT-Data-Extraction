@@ -11,10 +11,8 @@ from aux import defaults
 
 def tsne_fit(features, n=1):
     ImageFile.LOAD_TRUNCATED_IMAGES = True
-    tsne_results = sklearn.manifold.TSNE(n_components=n,
-                                         learning_rate='auto',
-                                         init='random',
-                                         perplexity=30).fit_transform(features)
+    tsne = sklearn.manifold.TSNE(n_components=n, learning_rate='auto', init='random', perplexity=30)
+    tsne_results = tsne.fit_transform(features)
     return tsne_results
 
 def opentsne_fit(features, n=2):
@@ -51,6 +49,6 @@ def compute_projections(output_path, project_name, batch_id, features, path_imag
         dataframes_folder = os.path.join(output_path, defaults['dataframes'])
         if not os.path.isdir(dataframes_folder):
             os.mkdir(dataframes_folder, mode=0o755)
-        df.to_csv(os.path.join(dataframes_folder, batch_id + '_' + project_name + '.csv'), index=None)
+        df.to_csv(os.path.join(dataframes_folder, f'{batch_id}_{project_name}.csv'), index=None)
 
     return base_tsne

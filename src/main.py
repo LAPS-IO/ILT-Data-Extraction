@@ -89,8 +89,8 @@ def main():
     # Step 2: Extract data
     print(datetime.datetime.now())
     print('Computing all features/projections...')
-    for i in tqdm.tqdm(range(0, num_batches), ascii=True, ncols=79, unit='bat'):
-        batch_id = 'batch_{:04d}'.format(i + 1)
+    for i in tqdm.tqdm(range(0, num_batches), unit='batch'):
+        batch_id = f'batch_{i + 1:04d}'
         features, path_images, predictions = compute_features(images_folder, batch_id, model, weights_path)
         compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, predictions, base_tsne=base_tsne)
     print()
@@ -101,8 +101,8 @@ def main():
         print('Labeling predictions...')
         full_df = pd.DataFrame()
         start = timeit.default_timer()
-        for i in tqdm.tqdm(range(0, num_batches), ascii=True, ncols=79, unit='bat'):
-            batch_id = 'batch_{:04d}'.format(i + 1)
+        for i in tqdm.tqdm(range(0, num_batches), unit='batch'):
+            batch_id = f'batch_{i + 1:04d}'
             df_path = os.path.join(df_folder, batch_id + '_' + project_name + '.csv')
             batch_df = pd.read_csv(df_path)
             label_predictions(batch_df, labels_path)
