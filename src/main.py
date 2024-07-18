@@ -37,11 +37,16 @@ def read_network(argv):
     return weights_path, labels_path
 
 
+def log(file, string):
+    file.write(string)
+    file.flush()
+
+
 def main():
     input_path, output_path = read_paths(sys.argv)
     project_name = os.path.basename(output_path)
-    print(f'STARTING: {project_name}')
-    print(datetime.datetime.now())
+    log_file = open(os.path.join(output_path, f'{project_name}.log'), 'w')
+    log(log_file, f'{datetime.datetime.now()}: START {project_name}\n')
     match len(sys.argv):
         case 3:
             weights_path, labels_path = '', ''
@@ -60,7 +65,9 @@ def main():
 
     # Step 1: Create batches and remove scales
     df_batches = create_batches(input_path, output_path)
-    print(datetime.datetime.now())
+    log(log_file, f'{datetime.datetime.now()}: Symlinks\n')
+    if input_path[-4:] == '.txt':
+        input_path = f'/raid/Salvador_raw_imgs_frames/LPD/{project_name}'
     symlink_images(input_path, df_batches, output_path)
     
     model = get_model(load=True, num_classes=num_classes)
@@ -68,14 +75,14 @@ def main():
     df_batches = pd.read_csv(os.path.join(output_path, 'batches.csv'), index_col=None)
 
     base_id = defaults['base_tsne_id']
-    print(datetime.datetime.now())
+    log(log_file, f'{datetime.datetime.now()}: Base features\n')
     print('Computing base features...')
     start = timeit.default_timer()
     features, path_images, predictions = compute_features(images_folder, base_id, model, weights_path)
     end = timeit.default_timer()
     print('Total time:', datetime.timedelta(seconds=(end - start)), "\n")
 
-    print(datetime.datetime.now())
+    log(log_file, f'{datetime.datetime.now()}: Base projections\n')
     print('Computing base projections...')
     start = timeit.default_timer()
     base_tsne = compute_projections(
@@ -88,7 +95,7 @@ def main():
     df_folder = os.path.join(output_path, defaults['dataframes'])
 
     # Step 2: Extract data
-    print(datetime.datetime.now())
+    log(log_file, f'{datetime.datetime.now()}: All feat/proj\n')
     print('Computing all features/projections...')
     for i in tqdm.tqdm(range(0, num_batches), unit='batch'):
         batch_id = f'batch_{i + 1:04d}'
@@ -100,7 +107,7 @@ def main():
 
     # Step 4: Label predictions
     if labels_path != '':
-        print(datetime.datetime.now())
+        log(log_file, f'{datetime.datetime.now()}: Labeling\n')
         print('Labeling predictions...')
         full_df = pd.DataFrame()
         start = timeit.default_timer()
@@ -114,9 +121,9 @@ def main():
         full_df.to_csv(os.path.join(output_path, 'complete.csv'), index=False)
         end = timeit.default_timer()
         print('Total time:', datetime.timedelta(seconds=(end - start)))
+    log(log_file, f'{datetime.datetime.now()}: END {project_name}\n')
+    log_file.close()
 
 
 if __name__ == '__main__':
     main()
-    print(datetime.datetime.now())
-    print('--------------------------')
