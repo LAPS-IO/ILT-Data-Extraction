@@ -76,11 +76,11 @@ def register_hooks(model,):
 
 
 # Input:
-  # (1) images_folder: a string with the path to the folder with the images
-  # (2) project_name: a string used to name the saved the files (optional, if
-  #                   not provided, it uses the basename of the images_folder)
-  # (3) weights_path: a string with the path to the weights to load (optional,
-  #                   if not provided, loads weights from the ImageNet)
+# (1) images_folder: a string with the path to the folder with the images
+# (2) project_name: a string used to name the saved the files (optional, if
+#                   not provided, it uses the basename of the images_folder)
+# (3) weights_path: a string with the path to the weights to load (optional,
+#                   if not provided, loads weights from the ImageNet)
 # Output:
 def compute_features(images_folder, batch_id, model, weights_path):
     global activation
@@ -106,7 +106,6 @@ def compute_features(images_folder, batch_id, model, weights_path):
     model.to(device) # important to do BEFORE loading the optimizer
     if weights_path != '':
         checkpoint = torch.load(weights_path, map_location=lambda storage, loc: storage.cuda(dev))
-
         model.load_state_dict(checkpoint['model'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         scaler.load_state_dict(checkpoint['scaler'])
@@ -119,7 +118,12 @@ def compute_features(images_folder, batch_id, model, weights_path):
     file_list = os.listdir(inner_folder)
     test_list = [os.path.join(inner_folder, file) for file in file_list]
     test_data = ILTDataset(test_list, transform=test_transform)
-    test_loader = DataLoader(dataset=test_data, batch_size=batch_size, shuffle=False, pin_memory=True, num_workers=1)
+    test_loader = DataLoader(
+        dataset=test_data,
+        batch_size=batch_size,
+        shuffle=False,
+        pin_memory=True,
+        num_workers=1)
 
     path_images, predictions = [], []
     features = None

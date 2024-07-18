@@ -89,7 +89,7 @@ def map_of_images(df, xrange, yrange, images_folder, output_path, zoom, fig_size
 
 
 def generate_bkg(backgrounds_folder, df_folder, images_folder, project_name, batch_num, range=100):
-    batch_id = 'batch_{:04d}'.format(batch_num)
+    batch_id = f'batch_{batch_num:04d}'    
     df = pd.read_csv(os.path.join(df_folder, batch_id + '_' + project_name + '.csv'), index_col=None)
 
     fig_size = 40
