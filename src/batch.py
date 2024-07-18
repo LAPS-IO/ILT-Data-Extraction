@@ -1,15 +1,10 @@
 import math
-import multiprocessing as mp
 import os
-import shutil
 import timeit
-from datetime import timedelta
-
 import pandas as pd
-import PIL
-import tqdm
-
+import multiprocessing as mp
 from aux import defaults
+from datetime import timedelta
 
 
 # Input:
@@ -68,7 +63,6 @@ def symlink_batch_images(input_path, images_folder, df):
             os.symlink(original_path, os.path.join(batch_folder, row.names))
         except:
             df.drop(row.Index, inplace=True)
-            dropped_imgs += 1
 
 
 # Inputs:

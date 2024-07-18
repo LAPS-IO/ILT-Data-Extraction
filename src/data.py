@@ -1,17 +1,10 @@
 import json
-import multiprocessing as mp
 import os
-import timeit
-from datetime import timedelta
-
-import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import PIL
-import tqdm
 from matplotlib.offsetbox import AnnotationBbox, OffsetImage
-
 from aux import defaults
 
 
@@ -23,7 +16,7 @@ def update(progress_bar):
 def create_csv(df, csv_path):
     df = df.rename(columns={'klass': 'correct_label'})
     labels = df['correct_label'].tolist()
-    df['correct_label'] = ['_' + str(l) for l in labels]
+    df['correct_label'] = [f'_{str(label)}' for label in labels]
 
     classes = df['correct_label'].unique()
     classes.sort()

@@ -9,14 +9,10 @@ from tqdm import tqdm
 from sys import argv
 import pandas as pd
 import numpy as np
-import shutil
 from timeit import default_timer as timer
 import psutil
 from focal_loss.focal_loss import FocalLoss
-import random
-import torchvision.transforms.functional as FV
 import json
-from pathlib import Path
 from features import get_model, get_transforms, seed_everything
 
 from PIL import ImageFile
@@ -129,15 +125,12 @@ def run(images_path, save_path, save_name, train_name = 'train', valid_name = 'v
     labels = os.listdir(train_dir)
     labels.sort()
     label_id = 0
-    img_size = 224
     batch_size = 30
 
     for c in labels:
         map_label[c] = label_id
         label_id += 1
 
-    labels_ids = [i for i in range(len(labels))]
-    
     train_transform = get_transforms()
     test_transform = get_transforms()
 
@@ -252,9 +245,9 @@ def run(images_path, save_path, save_name, train_name = 'train', valid_name = 'v
             train_loss += loss.item()
 
             for i in range(label.shape[0]):
-                l = label[i]
-                p = pred[i]
-                train_matrix[l][p] += 1
+                lab = label[i]
+                prd = pred[i]
+                train_matrix[lab][prd] += 1
 
         train_acc/=len(train_data)
         train_loss /= len(train_loader)
@@ -280,9 +273,9 @@ def run(images_path, save_path, save_name, train_name = 'train', valid_name = 'v
                 valid_acc += acc.item()
                 valid_loss += loss.item()
                 for i in range(label.shape[0]):
-                    l = label[i]
-                    p = pred[i]
-                    valid_matrix[l][p] += 1
+                    lab = label[i]
+                    prd = pred[i]
+                    valid_matrix[lab][prd] += 1
         valid_acc /=len(valid_data)
         valid_loss /= len(valid_loader)
         valid_rec, valid_prec, valid_macro = compute_macro(valid_matrix)
@@ -331,10 +324,9 @@ def run(images_path, save_path, save_name, train_name = 'train', valid_name = 'v
             test_acc += acc.item()
             test_loss += loss.item()
             for i in range(label.shape[0]):
-                l = label[i]
-                p = pred[i]
-                test_matrix[l][p] += 1
-
+                lab = label[i]
+                prd = pred[i]
+                test_matrix[lab][prd] += 1
     
     test_acc /=len(test_data)
     test_loss /= len(test_loader)
