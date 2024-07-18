@@ -1,6 +1,5 @@
 import os
 import random
-
 import numpy as np
 import PIL
 import torch
@@ -9,11 +8,7 @@ import torch.optim as optim
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader, Dataset
 from torchvision.models import ConvNeXt_Tiny_Weights, convnext_tiny
-
 from aux import defaults
-
-import timeit
-from datetime import timedelta
 
 activation = {}
 

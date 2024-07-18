@@ -1,15 +1,12 @@
-import multiprocessing as mp
 import os
 import sys
 import datetime
 import timeit
-
 import pandas as pd
 import tqdm
-
 from aux import defaults
 from batch import create_batches, symlink_images
-from data import (generate_bkg, label_predictions, read_labels)
+from data import ( label_predictions, read_labels)
 from features import compute_features, get_model
 from projections import compute_projections
 
