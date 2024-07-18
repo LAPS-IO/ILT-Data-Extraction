@@ -1,8 +1,8 @@
 import multiprocessing as mp
 import os
 import sys
+import datetime
 import timeit
-from datetime import timedelta
 
 import pandas as pd
 import tqdm
@@ -12,10 +12,6 @@ from batch import create_batches, symlink_images
 from data import (generate_bkg, label_predictions, read_labels)
 from features import compute_features, get_model
 from projections import compute_projections
-
-
-def update(progress_bar):
-    progress_bar.update(1)
 
 
 def read_paths(argv):
@@ -46,6 +42,9 @@ def read_network(argv):
 
 def main():
     input_path, output_path = read_paths(sys.argv)
+    project_name = os.path.basename(output_path)
+    print(f'STARTING: {project_name}')
+    print(datetime.datetime.now())
     match len(sys.argv):
         case 3:
             weights_path, labels_path = '', ''
@@ -59,10 +58,10 @@ def main():
             print('Wrong number of arguments!')
             print('Usage: main.py <input_folder> <output_folder> [<model_path> <label_path > (optionals)]')
             exit()
-    project_name = os.path.basename(output_path)
 
     # Step 1: Create batches and remove scales
     df_batches = create_batches(input_path, output_path)
+    print(datetime.datetime.now())
     symlink_images(input_path, df_batches, output_path)
     
     model = get_model(load=True, num_classes=num_classes)
@@ -70,22 +69,25 @@ def main():
     df_batches = pd.read_csv(os.path.join(output_path, 'batches.csv'), index_col=None)
 
     base_id = defaults['base_tsne_id']
+    print(datetime.datetime.now())
     print('Computing base features...')
     start = timeit.default_timer()
     features, path_images, predictions = compute_features(images_folder, base_id, model, weights_path)
     end = timeit.default_timer()
-    print('Total time:', timedelta(seconds=(end - start)), "\n")
+    print('Total time:', datetime.timedelta(seconds=(end - start)), "\n")
 
+    print(datetime.datetime.now())
     print('Computing base projections...')
     start = timeit.default_timer()
     base_tsne = compute_projections(output_path, project_name, base_id, features, path_images, df_batches, predictions, compute_base=True, save=False)
     end = timeit.default_timer()
-    print('Total time:', timedelta(seconds=(end - start)), "\n")
+    print('Total time:', datetime.timedelta(seconds=(end - start)), "\n")
 
     num_batches = len(os.listdir(images_folder))
     df_folder = os.path.join(output_path, defaults['dataframes'])
 
     # Step 2: Extract data
+    print(datetime.datetime.now())
     print('Computing all features/projections...')
     for i in tqdm.tqdm(range(0, num_batches), ascii=True, ncols=79, unit='bat'):
         batch_id = 'batch_{:04d}'.format(i + 1)
@@ -95,6 +97,7 @@ def main():
 
     # Step 4: Label predictions
     if labels_path != '':
+        print(datetime.datetime.now())
         print('Labeling predictions...')
         full_df = pd.DataFrame()
         start = timeit.default_timer()
@@ -107,8 +110,10 @@ def main():
             batch_df.to_csv(df_path, index=False)
         full_df.to_csv(os.path.join(output_path, 'complete.csv'), index=False)
         end = timeit.default_timer()
-        print('Total time:', timedelta(seconds=(end - start)))
+        print('Total time:', datetime.timedelta(seconds=(end - start)))
 
 
 if __name__ == '__main__':
     main()
+    print(datetime.datetime.now())
+    print('--------------------------')
