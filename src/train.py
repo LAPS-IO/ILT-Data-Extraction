@@ -92,11 +92,11 @@ def compute_macro(matrix, div = -1): #div is used to manually input the number o
         sum1 = matrix[x].sum()
         sum2 = matrix[:,x].sum()
         if sum1 > 0:
-            recall = tp/sum1
+            recall = tp / sum1
         if sum2 > 0:
-            precision = tp/sum2
+            precision = tp / sum2
         if (recall + precision) > 0:
-            f1 = 2*recall*precision/(recall + precision)
+            f1 = 2 * recall * precision / (recall + precision)
         avg_recall += recall
         avg_precision += precision
         macro += f1
@@ -104,7 +104,7 @@ def compute_macro(matrix, div = -1): #div is used to manually input the number o
     if div < 0:
         div = n
     
-    return avg_recall/div, avg_precision/div, macro/div
+    return avg_recall / div, avg_precision / div, macro / div
 
 
 def run(images_path, save_path, save_name, train_name = 'train', valid_name = 'valid', test_name = 'test', lr=0.00001, \
@@ -161,10 +161,10 @@ def run(images_path, save_path, save_name, train_name = 'train', valid_name = 'v
     scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
     
     counter = 0
-    if exists(join(save_path, 'model_{}'.format(save_name))):
+    if exists(join(save_path, f'model_{save_name}')):
         option = '3' 
         partial_model = False
-        if exists(join(save_path, 'model_{}_last_epoch'.format(save_name))):
+        if exists(join(save_path, f'model_{save_name}_last_epoch')):
             partial_model = True
 
         if read_model != 'T' or not partial_model:
@@ -194,15 +194,15 @@ def run(images_path, save_path, save_name, train_name = 'train', valid_name = 'v
     model.to(device)
     min_val_loss = float('inf')
     max_val_acc = 0
-    if read_model == 'T' and exists(join(save_path, 'model_{}_last_epoch'.format(save_name))):
+    if read_model == 'T' and exists(join(save_path, f'model_{save_name}_last_epoch')):
         dev = torch.cuda.current_device()
-        checkpoint = torch.load(join(save_path, 'model_{}_last_epoch'.format(save_name)), map_location=lambda storage, loc: storage.cuda(dev))
+        checkpoint = torch.load(join(save_path, f'model_{save_name}_last_epoch'), map_location=lambda storage, loc: storage.cuda(dev))
 
         model.load_state_dict(checkpoint['model'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         scaler.load_state_dict(checkpoint['scaler'])
         
-        df_stats = pd.read_csv(join(save_path, 'stats_{}.csv'.format(save_name)), index_col = None)
+        df_stats = pd.read_csv(join(save_path, f'stats_{save_name}.csv'), index_col = None)
         epoch = df_stats.shape[0] + 1
         if valid_metric == 'valid_acc':
             col_name = 'Valid Loss'
@@ -217,7 +217,7 @@ def run(images_path, save_path, save_name, train_name = 'train', valid_name = 'v
             best_row = df_stats[col_name].idxmax()
             max_val_acc = df_stats[col_name].max()
         counter = epoch - best_row - 2
-        prev_time = df_stats['Time'].iloc[epoch-2]
+        prev_time = df_stats['Time'].iloc[epoch - 2]
     else:
         epoch = 1
         prev_time = 0    
@@ -287,7 +287,7 @@ def run(images_path, save_path, save_name, train_name = 'train', valid_name = 'v
         valid_loss /= len(valid_loader)
         valid_rec, valid_prec, valid_macro = compute_macro(valid_matrix)
 
-        gpu_mem_usage = (torch.cuda.mem_get_info()[1] - torch.cuda.mem_get_info()[0])/(1024*1024)
+        gpu_mem_usage = (torch.cuda.mem_get_info()[1] - torch.cuda.mem_get_info()[0]) / (1024 * 1024)
         cur = timer()
         time_diff = cur - start
         process = psutil.Process(os.getpid())
@@ -296,11 +296,11 @@ def run(images_path, save_path, save_name, train_name = 'train', valid_name = 'v
         df_row = pd.DataFrame([[epoch, time_diff + prev_time, gpu_mem_usage, ram_usage, train_acc, train_loss, train_rec, train_prec, train_macro, valid_acc, valid_loss, valid_rec, valid_prec, valid_macro]],\
             columns=['Epoch', 'Time', 'VRAM', 'RAM', 'Train Acc', 'Train Loss', 'Train Recall', 'Train Precision', 'Train Macro-F1', 'Valid Acc', 'Valid Loss', 'Valid Recall', 'Valid Precision', 'Valid Macro-F1'])
         df_stats = pd.concat([df_stats, df_row], ignore_index = True)
-        df_stats.to_csv(join(save_path, 'stats_{}.csv'.format(save_name)), index = None)
+        df_stats.to_csv(join(save_path, f'stats_{save_name}.csv'), index = None)
 
-        print('Epoch {}, time: {:.2f} mins, VRAM: {:.1f}MB, RAM: {:.1f}MB'.format(epoch, (time_diff+prev_time)/60, gpu_mem_usage, ram_usage))
-        print('\ttrain acc: {:.5f}, loss: {:.5f}, rec: {:.5f}, prec: {:.5f}, macro: {:.5f}'.format(train_acc, train_loss, train_rec, train_prec, train_macro))
-        print('\tvalid acc: {:.5f}, loss: {:.5f}, rec: {:.5f}, prec: {:.5f}, macro: {:.5f}'.format(valid_acc, valid_loss, valid_rec, valid_prec, valid_macro))
+        print(f'Epoch {epoch}, time: {(time_diff + prev_time) / 60:.2f} min, VRAM: {gpu_mem_usage:.1f}MB, RAM: {ram_usage:.1f}MB')
+        print(f'\ttrain acc: {train_acc:.5f}, loss: {train_loss:.5f}, rec: {train_rec:.5f}, prec: {train_prec:.5f}, macro: {train_macro:.5f}')
+        print(f'\tvalid acc: {valid_acc:.5f}, loss: {valid_loss:.5f}, rec: {valid_rec:.5f}, prec: {valid_prec:.5f}, macro: {valid_macro:.5f}')
         epoch += 1
 
         if valid_metric == 'valid_loss':
@@ -340,20 +340,18 @@ def run(images_path, save_path, save_name, train_name = 'train', valid_name = 'v
     test_loss /= len(test_loader)
     test_rec, test_prec, test_macro = compute_macro(test_matrix, div)
 
-    gpu_mem_usage = (torch.cuda.mem_get_info()[1] - torch.cuda.mem_get_info()[0])/(1024*1024)
+    gpu_mem_usage = (torch.cuda.mem_get_info()[1] - torch.cuda.mem_get_info()[0]) / (1024 * 1024)
     process = psutil.Process(os.getpid())
-    ram_usage = process.memory_info().rss/(1024*1024)
+    ram_usage = process.memory_info().rss / (1024 * 1024)
     cur = timer()
     time_diff = cur - start
     
-    print('test acc: {:.5f}, loss: {:.5f}, rec: {:.5f}, prec: {:.5f}, macro: {:.5f}'.format(test_acc, test_loss, test_rec, test_prec, test_macro))
+    print(f'test acc: {test_acc:.5f}, loss: {test_loss:.5f}, rec: {test_rec:.5f}, prec: {test_prec:.5f}, macro: {test_macro:.5f}')
     df_row = pd.DataFrame([['Test', time_diff, gpu_mem_usage, ram_usage, '', '', '', '', '', test_acc, test_loss, test_rec, test_prec, test_macro]], \
         columns=['Epoch', 'Time', 'VRAM', 'RAM', 'Train Acc', 'Train Loss', 'Train Recall', 'Train Precision', 'Train Macro-F1', 'Valid Acc', 'Valid Loss', 'Valid Recall', 'Valid Precision', 'Valid Macro-F1'])
     df_stats = pd.concat([df_stats, df_row], ignore_index = True)
-    df_stats.to_csv(join(save_path, 'stats_{}.csv'.format(save_name)), index = None)
-    np.savetxt(join(save_path, 'matrix_{}.csv'.format(save_name)), test_matrix,
-              delimiter = ", ")
-              
+    df_stats.to_csv(join(save_path, f'stats_{save_name}.csv'), index = None)
+    np.savetxt(join(save_path, f'matrix_{save_name}.csv'), test_matrix, delimiter = ", ")
     os.remove(join(save_path, 'model_' + save_name + '_last_epoch'))
 
     print('=============== Finished ===============')
