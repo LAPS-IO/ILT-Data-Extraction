@@ -50,7 +50,9 @@ def main():
             weights_path, labels_path = read_network(sys.argv)
             labels_dict = read_labels(labels_path)
             num_classes = len(labels_dict)
-            print(f'Num Classes: {num_classes}\nWeights: {weights_path}\nLabels: {labels_path}')
+            print(f'Num Classes: {num_classes}')
+            print(f'Weights: {weights_path}')
+            print(f'Labels: {labels_path}')
         case _:
             print('Wrong number of arguments!')
             print('Usage: main.py <input_folder> <output_folder> [<model_path> <label_path > (optionals)]')
@@ -76,7 +78,9 @@ def main():
     print(datetime.datetime.now())
     print('Computing base projections...')
     start = timeit.default_timer()
-    base_tsne = compute_projections(output_path, project_name, base_id, features, path_images, df_batches, predictions, compute_base=True, save=False)
+    base_tsne = compute_projections(
+        output_path, project_name, base_id, features, path_images,
+        df_batches, predictions, compute_base=True, save=False)
     end = timeit.default_timer()
     print('Total time:', datetime.timedelta(seconds=(end - start)), "\n")
 
@@ -89,7 +93,9 @@ def main():
     for i in tqdm.tqdm(range(0, num_batches), unit='batch'):
         batch_id = f'batch_{i + 1:04d}'
         features, path_images, predictions = compute_features(images_folder, batch_id, model, weights_path)
-        compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, predictions, base_tsne=base_tsne)
+        compute_projections(
+            output_path, project_name, batch_id, features, path_images,
+            df_batches, predictions, base_tsne=base_tsne)
     print()
 
     # Step 4: Label predictions
