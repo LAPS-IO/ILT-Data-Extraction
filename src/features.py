@@ -95,12 +95,13 @@ def compute_features(images_folder, batch_id, model, weights_path):
 
     optimizer = optim.Adam(model.parameters(), lr=lr)
     use_amp = True
-    scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+    scaler = torch.amp.GradScaler(device, enabled=use_amp)
     dev = torch.cuda.current_device()
 
     model.to(device) # important to do BEFORE loading the optimizer
     if weights_path != '':
-        checkpoint = torch.load(weights_path, map_location=lambda storage, loc: storage.cuda(dev))
+        checkpoint = torch.load(weights_path, weights_only=True,
+                                map_location=lambda storage, loc: storage.cuda(dev))
         model.load_state_dict(checkpoint['model'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         scaler.load_state_dict(checkpoint['scaler'])
@@ -126,7 +127,7 @@ def compute_features(images_folder, batch_id, model, weights_path):
     with torch.no_grad():
         for data, paths in test_loader:
             data = data.to(device)
-            with torch.cuda.amp.autocast(dtype=torch.float16):
+            with torch.amp.autocast(device, dtype=torch.float16):
                 output = model(data)
                 aux = torch.amax(activation['layer4'], (2, 3))
                 if features is None:
