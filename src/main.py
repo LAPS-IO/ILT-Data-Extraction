@@ -6,7 +6,7 @@ import pandas as pd
 import tqdm
 from aux import defaults
 from batch import create_batches, symlink_images
-from data import ( label_predictions, read_labels)
+from data import (label_predictions, read_labels, generate_bkg)
 from features import compute_features, get_model
 from projections import compute_projections
 
@@ -104,6 +104,18 @@ def main():
             output_path, project_name, batch_id, features, path_images,
             df_batches, predictions, base_tsne=base_tsne)
     print()
+
+    # Step 3: Generate CSVs + backgrounds
+    print('Generating backgrounds...')
+    log(log_file, f'{datetime.datetime.now()}: CSV+BKG\n')
+    start = timeit.default_timer()
+    backgrounds_folder = os.path.join(output_path, defaults['backgrounds'])
+    if not os.path.isdir(backgrounds_folder):
+        os.mkdir(backgrounds_folder, mode=0o755)
+    for i in tqdm.tqdm(range(0, num_batches), unit='batch'):
+        generate_bkg(backgrounds_folder, df_folder, images_folder, project_name, i + 1)
+    end = timeit.default_timer()
+    print('Total time:', datetime.timedelta(seconds=(end - start)))
 
     # Step 4: Label predictions
     if labels_path != '':
