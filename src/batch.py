@@ -71,7 +71,7 @@ def symlink_batch_images(input_path, images_folder, df):
                 case _:
                     print('Wrong img_mode flag. Check src/aux.py file.')
                     exit()
-        except:
+        except Exception:
             df.drop(row.Index, inplace=True)
 
 
