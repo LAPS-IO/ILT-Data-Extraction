@@ -1,6 +1,7 @@
 import math
 import os
 import timeit
+import shutil
 import pandas as pd
 import multiprocessing as mp
 from aux import defaults
@@ -60,7 +61,16 @@ def symlink_batch_images(input_path, images_folder, df):
 
         original_path = os.path.join(input_path, row.klass, row.names)
         try:
-            os.symlink(original_path, os.path.join(batch_folder, row.names))
+            match defaults['img_mode']:
+                case 'ln':
+                    os.symlink(original_path, os.path.join(batch_folder, row.names))
+                case 'cp':
+                    shutil.copy2(original_path, os.path.join(batch_folder, row.names))
+                case 'mv':
+                    shutil.move(original_path, os.path.join(batch_folder, row.names))
+                case _:
+                    print('Wrong img_mode flag. Check src/aux.py file.')
+                    exit()
         except:
             df.drop(row.Index, inplace=True)
 
