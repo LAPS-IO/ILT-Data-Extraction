@@ -16,6 +16,7 @@ defaults = {
     'base_tsne_id': 'batch_0001',
     'num_classes': 21,
     'map_factor': 2, # decrease to increase the size of the images in the backgrounds
+    'img_mode': 'cp',
     'make_bkg': True
 }
 
