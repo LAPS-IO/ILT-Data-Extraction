@@ -45,7 +45,7 @@ def log(file, string):
 def main():
     input_path, output_path = read_paths(sys.argv)
     project_name = os.path.basename(output_path)
-    log_file = open(os.path.join(output_path, f'{project_name}.log'), 'w')
+    log_file = open(os.path.join(output_path, f'{project_name}.log'), 'a')
     log(log_file, f'{datetime.datetime.now()}: START {project_name}\n')
     match len(sys.argv):
         case 3:
