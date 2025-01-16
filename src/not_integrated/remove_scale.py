@@ -17,7 +17,7 @@ def remove_scale(img_path):
     else:
         clean = False
         passes = 0
-        while(not clean):
+        while not clean:
             w, h = img.size
             arr = np.array(img)
             avg1 = np.mean(arr[0:10, 0:w])
@@ -40,7 +40,7 @@ def main():
     imgs = []
     for pwd, children, files in os.walk(input_path):
         rel_pwd = pwd[len(input_path) + 1:]
-        imgs += [ os.path.join(pwd, file) for file in files if (file.endswith('.png') or file.endswith('.jpg')) ]
+        imgs += [os.path.join(pwd, file) for file in files if (file.endswith('.png') or file.endswith('.jpg'))]
     print('Found', len(imgs), "images.\n")
 
     passes = {}
@@ -52,6 +52,7 @@ def main():
             passes[value] = 1
     print(passes)
     print('Finished.')
+
 
 if __name__ == '__main__':
     main()

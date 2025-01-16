@@ -12,5 +12,6 @@ def main():
         img = f'/raid/Salvador_raw_imgs_frames/LPD/2021_06/{t[3]}/{t[2]}'
         shutil.copy2(img, dest)
 
+
 if __name__ == '__main__':
     main()

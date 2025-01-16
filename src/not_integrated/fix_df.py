@@ -2,7 +2,8 @@ import sys
 import os
 import tqdm
 import pandas as pd
-#from parallel_pandas import ParallelPandas
+# from parallel_pandas import ParallelPandas
+
 
 def main():
     # initialize parallel-pandas
