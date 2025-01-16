@@ -12,8 +12,10 @@ tqdm = "*"
 psutil = "*"
 torch = "*"
 numpy = "==1.*"
+torchvision = "*"
+focal-loss-torch = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.13"
+python = "~=3.12.*"
