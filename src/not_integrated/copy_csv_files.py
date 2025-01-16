@@ -5,6 +5,7 @@ import shutil
 import pandas as pd
 import tqdm
 
+
 def image_list(input_path):
     print('Generating image list for:', input_path)
     imgs = {}
@@ -12,6 +13,7 @@ def image_list(input_path):
         for file in files:
             imgs[file] = os.path.join(pwd, file)
     return imgs
+
 
 def main():
     all_imgs = image_list(os.path.abspath(sys.argv[2]))
@@ -27,7 +29,7 @@ def main():
                 filtered_imgs.append(all_imgs[t[2]])
 
             print('Writing filtered images to:', os.path.abspath(sys.argv[3]))
-            #file = open(sys.argv[3], 'w')
+            # file = open(sys.argv[3], 'w')
             count = 0
             for fi in tqdm.tqdm(filtered_imgs, unit='img'):
                 count += 1
@@ -38,4 +40,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
