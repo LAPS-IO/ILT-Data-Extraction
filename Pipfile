@@ -9,13 +9,11 @@ opentsne = "*"
 opencv-python = "*"
 matplotlib = "*"
 tqdm = "*"
-torch = "*"
-torchvision = "*"
 psutil = "*"
-focal_loss_torch = "*"
-numpy = "~=1.0"
+torch = "*"
+numpy = "==1.*"
 
 [dev-packages]
 
 [requires]
-python_version = "3"
+python_version = "3.13"
