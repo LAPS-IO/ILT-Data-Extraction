@@ -8,14 +8,14 @@ pandas = "*"
 opentsne = "*"
 opencv-python = "*"
 matplotlib = "*"
-tqdm = "*"
 psutil = "*"
 torch = "*"
 numpy = "==1.*"
 torchvision = "*"
 focal-loss-torch = "*"
+tqdm = "*"
 
 [dev-packages]
 
 [requires]
-python = "~=3.12.*"
+python = "3.11"
