@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.transforms as transforms
+import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 from torchvision.models import ConvNeXt_Tiny_Weights, convnext_tiny
 from aux import defaults
@@ -121,7 +122,7 @@ def compute_features(images_folder, batch_id, model, weights_path):
         pin_memory=True,
         num_workers=1)
 
-    path_images, predictions = [], []
+    path_images, predictions, probs = [], [], []
     features = None
 
     with torch.no_grad():
@@ -129,6 +130,7 @@ def compute_features(images_folder, batch_id, model, weights_path):
             data = data.to(device)
             with torch.amp.autocast(device, dtype=torch.float16):
                 output = model(data)
+                probabilities = F.softmax(output, dim=1) 
                 aux = torch.amax(activation['layer4'], (2, 3))
                 if features is None:
                     features = aux
@@ -137,13 +139,16 @@ def compute_features(images_folder, batch_id, model, weights_path):
 
             paths = list(paths)
             paths = [os.path.basename(path) for path in paths]
-            preds = output.argmax(dim=1)
+            max_probabilities, preds = torch.max(probabilities, dim=1)
             preds_list = []
+            probs_list = []
             for i in range(preds.shape[0]):
                 preds_list.append(preds[i].item())
+                probs_list.append(max_probabilities[i].item())
                 paths[i] = os.path.basename(paths[i])
             predictions.extend(preds_list)
+            probs.extend(probs_list)
             path_images.extend(paths)
         features = features.cpu().detach().numpy()
 
-    return features, path_images, predictions
+    return features, path_images, predictions, probs
