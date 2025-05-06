@@ -31,7 +31,7 @@ def opentsne_transform(features, base_tsne):
     tsne_results = base_tsne.transform(features)
     return tsne_results
 
-def compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, predictions, base_tsne=None, compute_base=False, save=True):
+def compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, predictions, probs, base_tsne=None, compute_base=False, save=True):
     if compute_base:
         base_tsne = opentsne_fit(features)
         projection = base_tsne.copy()
@@ -40,8 +40,9 @@ def compute_projections(output_path, project_name, batch_id, features, path_imag
 
     path_images = np.reshape(np.array(path_images), (-1, 1))
     predictions_arr = np.reshape(np.array(predictions), (-1, 1))
-    tsne_arr = np.hstack((path_images, projection, predictions_arr))
-    df_preds = pd.DataFrame(tsne_arr, columns =['names', 'x', 'y', 'pred'])
+    probs_arr = np.reshape(np.array(probs), (-1, 1))
+    tsne_arr = np.hstack((path_images, projection, predictions_arr, probs_arr))
+    df_preds = pd.DataFrame(tsne_arr, columns =['names', 'x', 'y', 'pred', 'prob'])
     df_filtered = df_batches[df_batches['batch'] == batch_id]
     df = pd.merge(df_preds, df_filtered, on='names')
 

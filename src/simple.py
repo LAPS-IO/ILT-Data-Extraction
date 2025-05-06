@@ -44,13 +44,13 @@ def main():
     base_id = defaults['base_tsne_id']
     print('Computing base features...')
     start = timeit.default_timer()
-    features, path_images, predictions = compute_features(images_folder, base_id, model, weights_path)
+    features, path_images, predictions, probs = compute_features(images_folder, base_id, model, weights_path)
     end = timeit.default_timer()
     print('Total time:', timedelta(seconds=(end - start)), "\n")
 
     print('Computing base projections...')
     start = timeit.default_timer()
-    base_tsne = compute_projections(output_path, project_name, base_id, features, path_images, df_batches, predictions, compute_base=True, save=False)
+    base_tsne = compute_projections(output_path, project_name, base_id, features, path_images, df_batches, predictions, probs, compute_base=True, save=False)
     end = timeit.default_timer()
     print('Total time:', timedelta(seconds=(end - start)), "\n")
 
@@ -61,8 +61,8 @@ def main():
     print('Computing all features/projections...')
     for i in tqdm.trange(num_batches, ascii=True, ncols=79, unit='batch'):
         batch_id = 'batch_{:04d}'.format(i + 1)
-        features, path_images, predictions = compute_features(images_folder, batch_id, model, weights_path)
-        compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, predictions, base_tsne=base_tsne)
+        features, path_images, predictions, probs = compute_features(images_folder, batch_id, model, weights_path)
+        compute_projections(output_path, project_name, batch_id, features, path_images, df_batches, predictions, probs, base_tsne=base_tsne)
     print()
 
     # Step 6: Label predictions

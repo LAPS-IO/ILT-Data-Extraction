@@ -78,7 +78,7 @@ def main():
     log(log_file, f'{datetime.datetime.now()}: Base features\n')
     print('Computing base features...')
     start = timeit.default_timer()
-    features, path_images, predictions = compute_features(images_folder, base_id, model, weights_path)
+    features, path_images, predictions, probs = compute_features(images_folder, base_id, model, weights_path)
     end = timeit.default_timer()
     print('Total time:', datetime.timedelta(seconds=(end - start)), "\n")
 
@@ -87,7 +87,7 @@ def main():
     start = timeit.default_timer()
     base_tsne = compute_projections(
         output_path, project_name, base_id, features, path_images,
-        df_batches, predictions, compute_base=True, save=False)
+        df_batches, predictions, probs, compute_base=True, save=False)
     end = timeit.default_timer()
     print('Total time:', datetime.timedelta(seconds=(end - start)), "\n")
 
@@ -99,10 +99,10 @@ def main():
     print('Computing all features/projections...')
     for i in tqdm.tqdm(range(0, num_batches), unit='batch'):
         batch_id = f'batch_{i + 1:04d}'
-        features, path_images, predictions = compute_features(images_folder, batch_id, model, weights_path)
+        features, path_images, predictions, probs = compute_features(images_folder, batch_id, model, weights_path)
         compute_projections(
             output_path, project_name, batch_id, features, path_images,
-            df_batches, predictions, base_tsne=base_tsne)
+            df_batches, predictions, probs, base_tsne=base_tsne)
     print()
 
     # Step 3: Generate CSVs + backgrounds
