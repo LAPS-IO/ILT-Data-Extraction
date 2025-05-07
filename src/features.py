@@ -78,10 +78,10 @@ def register_hooks(model,):
 # (3) weights_path: a string with the path to the weights to load (optional,
 #                   if not provided, loads weights from the ImageNet)
 # Output:
-def compute_features(images_folder, batch_id, model, weights_path):
+def compute_features(images_folder, batch_id, model, weights_path, labels_dict = None):
     global activation
 
-    batch_size = 32
+    batch_size = 128
     device = 'cuda'
 
     lr = 3e-5
@@ -122,7 +122,7 @@ def compute_features(images_folder, batch_id, model, weights_path):
         pin_memory=True,
         num_workers=1)
 
-    path_images, predictions, probs = [], [], []
+    path_images, predictions, confs = [], [], []
     features = None
 
     with torch.no_grad():
@@ -139,16 +139,25 @@ def compute_features(images_folder, batch_id, model, weights_path):
 
             paths = list(paths)
             paths = [os.path.basename(path) for path in paths]
-            max_probabilities, preds = torch.max(probabilities, dim=1)
+            _, preds = torch.max(probabilities, dim=1)
+            top3_confidences, top3_classes = torch.topk(torch.softmax(output, dim=1), k=3, dim=1)
+
             preds_list = []
-            probs_list = []
+            confs_list = []
             for i in range(preds.shape[0]):
                 preds_list.append(preds[i].item())
-                probs_list.append(max_probabilities[i].item())
+                conf = {}
+                for j in range(3):
+                    class_id = top3_classes[i, j].item()
+                    if labels_dict is not None:
+                        class_id = list(labels_dict.keys())[class_id]
+                    confidence = top3_confidences[i, j].item()
+                    conf[f'top{j+1}'] = (class_id, confidence)
+                confs_list.append(conf)
                 paths[i] = os.path.basename(paths[i])
             predictions.extend(preds_list)
-            probs.extend(probs_list)
+            confs.extend(confs_list)
             path_images.extend(paths)
         features = features.cpu().detach().numpy()
 
-    return features, path_images, predictions, probs
+    return features, path_images, predictions, confs

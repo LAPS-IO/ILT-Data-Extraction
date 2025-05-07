@@ -47,6 +47,8 @@ def main():
     project_name = os.path.basename(output_path)
     log_file = open(os.path.join(output_path, f'{project_name}.log'), 'a')
     log(log_file, f'{datetime.datetime.now()}: START {project_name}\n')
+    labels_dict = None
+
     match len(sys.argv):
         case 3:
             weights_path, labels_path = '', ''
@@ -67,7 +69,7 @@ def main():
     df_batches = create_batches(input_path, output_path)
     log(log_file, f'{datetime.datetime.now()}: Symlinks\n')
     if input_path[-4:] == '.txt':
-        input_path = f'/raid/Salvador_raw_imgs_frames/LPD/{project_name}'
+        input_path = '/mnt/md0/salvador/lpd/2022'
     symlink_images(input_path, df_batches, output_path)
     
     model = get_model(load=True, num_classes=num_classes)
@@ -78,7 +80,7 @@ def main():
     log(log_file, f'{datetime.datetime.now()}: Base features\n')
     print('Computing base features...')
     start = timeit.default_timer()
-    features, path_images, predictions, probs = compute_features(images_folder, base_id, model, weights_path)
+    features, path_images, predictions, confs = compute_features(images_folder, base_id, model, weights_path, labels_dict)
     end = timeit.default_timer()
     print('Total time:', datetime.timedelta(seconds=(end - start)), "\n")
 
@@ -87,7 +89,7 @@ def main():
     start = timeit.default_timer()
     base_tsne = compute_projections(
         output_path, project_name, base_id, features, path_images,
-        df_batches, predictions, probs, compute_base=True, save=False)
+        df_batches, predictions, confs, compute_base=True, save=False)
     end = timeit.default_timer()
     print('Total time:', datetime.timedelta(seconds=(end - start)), "\n")
 
@@ -99,10 +101,10 @@ def main():
     print('Computing all features/projections...')
     for i in tqdm.tqdm(range(0, num_batches), unit='batch'):
         batch_id = f'batch_{i + 1:04d}'
-        features, path_images, predictions, probs = compute_features(images_folder, batch_id, model, weights_path)
+        features, path_images, predictions, confs = compute_features(images_folder, batch_id, model, weights_path, labels_dict)
         compute_projections(
             output_path, project_name, batch_id, features, path_images,
-            df_batches, predictions, probs, base_tsne=base_tsne)
+            df_batches, predictions, confs, base_tsne=base_tsne)
     print()
 
     # Step 3: Generate CSVs + backgrounds
