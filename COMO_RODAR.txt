@@ -92,13 +92,7 @@
 
     cd ~/Documents/programas/ILT-Data-Extraction/src
 
-    python inference.py \
-      /dados/imagens_validacao \
-      /dados/modelos/model_meu_projeto \
-      /dados/modelos/labels_meu_projeto.json \
-      ../count.csv \
-      -o /dados/saida/predictions.csv
-
+    python inference.py ~/Desktop/grouped_classified ~/Desktop/zoo_RN3_final/model_zoo_RN3_final ~/Desktop/zoo_RN3_final/labels_zoo_RN3_final.json ../count.csv -o ../output/preds.csv
 
 --------------------------------------------------------------------------------
 5. SAÍDA
