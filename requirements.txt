@@ -1,0 +1,10 @@
+pandas
+opentsne
+opencv-python
+matplotlib
+psutil
+torch
+numpy>=1,<2
+torchvision
+focal-loss-torch
+tqdm

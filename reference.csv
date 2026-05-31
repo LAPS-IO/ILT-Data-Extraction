@@ -1,0 +1,39 @@
+final3,group_validated,model,confusion_matrix
+acantharia,acantharia,acantharia,Acantharia
+amphipoda,amphipoda,amphipoda,Amphipoda
+anfioxo,anfioxo,anfioxo,Anfioxo
+appendicularia_cc,appendicularia_cc,appendicularia_cc,'Appendicularia 1'
+appendicularia_sc,appendicularia_sc,appendicularia_sc,'Appendicularia 2'
+bryozoa,bryozoa,bryozoa,'Bryozoa 1'
+bryozoa_larva,bryozoa_larva,bryozoa_larva,'Bryozoa 2'
+chaeto_curved,chaeto_curved,chaeto_curved,'Chaetognatha 1'
+chaeto_eating_egging,chaeto_eating_egging/chaeto_eating/chaeto_egging,chaeto_eating_egging,'Chaetognatha 2'
+chaeto_ret,chaeto_ret,chaeto_ret,'Chaetognatha 3'
+cnidaria,cnidaria,cnidaria,'Cnidaria 1'
+cnidaria_hat,cnidaria_hat,cnidaria_hat,'Cnidaria 2'
+cop_ca,copepoda1/copepoda2/copepoda3/copepoda4,cop_ca,'Copepoda 1'
+copepoda_sa,copepoda_sa1,copepoda_sa,'Copepoda 2'
+coscinodiscus_,coscinodiscus_/coscinodiscus,coscinodiscus_,'Coscinodiscus 1'
+coscinodiscus_only,coscinodiscus_only,coscinodiscus_only,'Coscinodiscus 2'
+coscinodiscus_org,coscinodiscus_org,coscinodiscus_org,'Coscinodiscus 3'
+crustacea_ovo,crustacea_ovo,crustacea_ovo,Crustacea
+det,det/det1/det2/det3/det4,det,Detrits
+doliolidae,doliolidae,doliolidae,Doliolidae
+equinoderma,equinoderma,equinoderma,Echinodermata
+fitoplancton,fitoplancton1/fitoplancton2/fitoplancton3,fitoplancton,Phytoplankton
+nauplii,nauplii,nauplii,Nauplii
+noctiluca,noctiluca,noctiluca,Noctiluca
+peixe_larva,peixe_larva1/peixe_larva2,peixe_larva,'Fish 1'
+peixe_ovo,peixe_ovo1/peixe_ovo2/peixe_ovo3/peixe_ovo4/peixe_ovo5,peixe_ovo,'Fish 2'
+penilia,penilia,penilia,Penilia
+poliqueta_juvenil,poliqueta/poliqueta_juvenil,poliqueta_juvenil,'Polychaete 1'
+poliqueta_larva,poliqueta_larva,poliqueta_larva,'Polychaete 2'
+pseudevadne,pseudevadne,pseudevadne,Pseudevadne
+pteropoda,pteropoda,pteropoda,Pteropoda
+radiolaria,radiolaria,radiolaria,Radiolaria
+radiozoa,radiozoa,radiozoa,Radiozoa
+siphonophora,siphonophora,siphonophora,Siphonophora
+sombra,sombra,sombra,Unfocused
+zoea,zoea,zoea,Zoea
+zoo_mix1,zoo_mix1/pilidium/unknown1/molusca/crustacea/tuf/foraminifera/unknown2/zoea_pen,zoo_mix1,'zoo mix 1'
+zoo_mix2,zoo_mix2/ctenophora/cnidaria_1/cirripedia/organismos_comp/tripus,zoo_mix2,'zoo mix 2'
