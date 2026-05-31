@@ -70,20 +70,21 @@
       /caminho/para/pasta/de/imagens \
       /caminho/para/model_checkpoint \
       /caminho/para/labels.json \
-      -o /caminho/para/saida/predictions.csv
+      -o /caminho/para/pasta/de/saida
 
   Inferência com correção de priores (usando count.csv):
 
     python inference.py \
-      /caminho_para_pasta_de_imagens /caminho_para_model_checkpoint /caminho_para_labels.json ../count.csv -o /caminho_de_predicoes.csv
+      /caminho_para_pasta_de_imagens /caminho_para_model_checkpoint /caminho_para_labels.json ../count.csv -o /caminho/para/pasta/de/saida
 
   Opções adicionais:
 
+    -o, --output       Pasta de saída (criada automaticamente se não existir).
     --batch-size 32    Tamanho do lote (padrão: 32).
                        Em GPU 8GB, 32 costuma ser seguro; reduza para 16 se faltar memória.
 
-  Se omitir -o, o resultado é salvo em:
-    <pasta_de_imagens>/predictions.csv
+  Se omitir -o, a saída vai para:
+    <pasta_de_imagens>/predictions/
 
 
 --------------------------------------------------------------------------------
@@ -98,9 +99,18 @@
 5. SAÍDA
 --------------------------------------------------------------------------------
 
-  O script gera um arquivo CSV com uma linha por imagem processada.
+  O script gera um CSV por subpasta de primeiro nível dentro de images_root.
+  Imagens diretamente na raiz vão para _root.csv.
 
-  Colunas:
+  Exemplo: com -o ../output/classified_preds e imagens em
+    grouped_classified/batch_0001/...
+    grouped_classified/batch_0002/...
+
+  são criados:
+    ../output/classified_preds/batch_0001.csv
+    ../output/classified_preds/batch_0002.csv
+
+  Colunas de cada CSV:
 
     file_name           — nome do arquivo (sem o caminho)
     path                — caminho completo da imagem
@@ -111,8 +121,9 @@
     top3_class          — 3ª classe mais provável
     top3_probability    — probabilidade da 3ª classe
 
-  No terminal, ao final, aparece algo como:
+  No terminal, ao final, aparece uma linha por subpasta, por exemplo:
 
-    Saved 15000 predictions to /dados/saida/predictions.csv
+    Saved 5000 predictions to ../output/classified_preds/batch_0001.csv
+    Saved 4800 predictions to ../output/classified_preds/batch_0002.csv
 
   Durante a execução, uma barra de progresso (tqdm) mostra os lotes processados.
