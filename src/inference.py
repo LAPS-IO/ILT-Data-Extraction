@@ -2,6 +2,7 @@ import argparse
 import glob
 import json
 import os
+from pathlib import Path
 
 import pandas as pd
 import torch
@@ -85,6 +86,24 @@ def predict_adjusted(logits, log_adjustment):
     return F.softmax(adjusted, dim=-1)
 
 
+def first_subfolder(images_root, file_path):
+    """Return the first path component under images_root, or '_root' if none."""
+    rel = Path(file_path).resolve().relative_to(Path(images_root).resolve())
+    return rel.parts[0] if len(rel.parts) > 1 else "_root"
+
+
+def save_predictions_by_subfolder(rows, output_dir):
+    df = pd.DataFrame(rows)
+    os.makedirs(output_dir, exist_ok=True)
+    saved_paths = []
+    for subfolder, group in df.groupby("subfolder", sort=True):
+        out_path = os.path.join(output_dir, f"{subfolder}.csv")
+        group.drop(columns=["subfolder"]).to_csv(out_path, index=False)
+        saved_paths.append(out_path)
+        print(f"Saved {len(group)} predictions to {out_path}")
+    return saved_paths
+
+
 def run_inference(
     images_root,
     model_path,
@@ -131,6 +150,7 @@ def run_inference(
                 row = {
                     "file_name": os.path.basename(path),
                     "path": path,
+                    "subfolder": first_subfolder(images_root, path),
                 }
                 for rank in range(3):
                     class_idx = top_indices[i, rank].item()
@@ -138,16 +158,8 @@ def run_inference(
                     row[f"top{rank + 1}_probability"] = top_probs[i, rank].item()
                 rows.append(row)
 
-    if output_path is None:
-        output_path = os.path.join(images_root, "predictions.csv")
-
-    df = pd.DataFrame(rows)
-    out_dir = os.path.dirname(output_path)
-    if out_dir:
-        os.makedirs(out_dir, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    print(f"Saved {len(df)} predictions to {output_path}")
-    return output_path
+    output_dir = output_path or os.path.join(images_root, "predictions")
+    return save_predictions_by_subfolder(rows, output_dir)
 
 
 def parse_args():
@@ -176,7 +188,10 @@ def parse_args():
         "-o",
         "--output",
         default=None,
-        help="Output CSV path (default: <images_root>/predictions.csv)",
+        help=(
+            "Output directory for CSV files, one per first-level subfolder "
+            "(default: <images_root>/predictions)"
+        ),
     )
     parser.add_argument(
         "--batch-size",
