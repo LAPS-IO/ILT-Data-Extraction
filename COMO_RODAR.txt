@@ -1,0 +1,192 @@
+================================================================================
+  ILT-Data-Extraction — Como rodar a inferência
+================================================================================
+
+Este guia descreve como preparar o ambiente e executar o script inference.py,
+que classifica imagens com um modelo ConvNeXt treinado.
+
+
+--------------------------------------------------------------------------------
+1. REQUISITOS DO SISTEMA
+--------------------------------------------------------------------------------
+
+  - Python 3.11 (recomendado; o Pipfile do projeto pede 3.11)
+  - Placa NVIDIA com driver compatível (opcional, mas muito mais rápido)
+    O requirements.txt usa PyTorch com CUDA 11.8 (adequado para Quadro P4000 8GB).
+    Driver NVIDIA Linux: >= 520.61 (aproximado).
+  - Se a GPU não estiver disponível, o script roda em CPU (mais lento).
+
+
+--------------------------------------------------------------------------------
+2. ARQUIVOS NECESSÁRIOS
+--------------------------------------------------------------------------------
+
+  Para INFERÊNCIA (obrigatórios):
+
+    (a) Pasta de imagens (images_root)
+        - Qualquer estrutura de subpastas; o script busca recursivamente.
+        - Formatos aceitos: .jpg, .jpeg, .png
+
+    (b) Checkpoint do modelo (model_path)
+        - Arquivo salvo no treinamento (ex.: model_nome_do_projeto).
+        - Deve conter a chave "model" no checkpoint ou ser o state_dict direto.
+
+    (c) Arquivo JSON de rótulos (labels_json)
+        - Gerado no treinamento: labels_<nome_do_projeto>.json
+        - Formato: {"nome_da_classe": indice, ...}
+          Exemplo: {"zoea": 0, "sombra": 1, "det": 2, ...}
+        - Os nomes devem coincidir com as classes do modelo treinado.
+
+  Para INFERÊNCIA com correção de priores (opcional):
+
+    (d) CSV de contagem (priors_csv)
+        - Três colunas (cabeçalho na primeira linha):
+            class, train_count, val_count
+        - O arquivo count.csv do repositório segue esse formato:
+            class     = nome da classe (igual ao JSON)
+            train_count = amostras usadas no treino
+            val_count     = pesos / contagem esperada na validação
+        - Os valores NÃO precisam somar 1; o script normaliza automaticamente.
+        - Apenas classes presentes no JSON são consideradas.
+
+  Arquivos auxiliares do projeto (não são lidos diretamente pelo inference.py):
+
+    - reference.csv   — mapeamento entre taxonomias de treino e validação
+    - train_count.csv / val_count.csv — contagens antes do merge
+    - count.csv       — contagens mescladas (uso recomendado como priors_csv)
+    - unmatched.csv   — classes da validação sem mapeamento no reference.csv
+
+
+--------------------------------------------------------------------------------
+3. CRIAR E ATIVAR O AMBIENTE VIRTUAL
+--------------------------------------------------------------------------------
+
+  Na pasta raiz do projeto (onde está o requirements.txt):
+
+    # Criar o ambiente (apenas na primeira vez)
+    python3.11 -m venv .venv
+
+    # Ativar o ambiente — Linux / macOS
+    source .venv/bin/activate
+
+    # Ativar o ambiente — Windows (PowerShell)
+    .venv\Scripts\Activate.ps1
+
+  O prompt deve mostrar (.venv) no início da linha.
+
+  Instalar dependências (com o ambiente ativado):
+
+    pip install --upgrade pip
+    pip install -r requirements.txt
+
+  Verificar se a GPU está sendo reconhecida:
+
+    python -c "import torch; print('CUDA:', torch.cuda.is_available()); \
+print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU')"
+
+  Para DESATIVAR o ambiente depois:
+
+    deactivate
+
+  Para REMOVER o ambiente completamente:
+
+    deactivate
+    rm -rf .venv
+
+
+--------------------------------------------------------------------------------
+4. COMANDO PARA RODAR A INFERÊNCIA
+--------------------------------------------------------------------------------
+
+  Entre na pasta src (o script importa módulos locais como features.py):
+
+    cd src
+
+  Inferência simples (sem correção de priores):
+
+    python inference.py \
+      /caminho/para/pasta/de/imagens \
+      /caminho/para/model_checkpoint \
+      /caminho/para/labels.json \
+      -o /caminho/para/saida/predictions.csv
+
+  Inferência com correção de priores (usando count.csv):
+
+    python inference.py \
+      /caminho/para/pasta/de/imagens \
+      /caminho/para/model_checkpoint \
+      /caminho/para/labels.json \
+      ../count.csv \
+      -o /caminho/para/saida/predictions.csv
+
+  Opções adicionais:
+
+    --batch-size 32    Tamanho do lote (padrão: 32).
+                       Em GPU 8GB, 32 costuma ser seguro; reduza para 16 se faltar memória.
+
+  Se omitir -o, o resultado é salvo em:
+    <pasta_de_imagens>/predictions.csv
+
+
+--------------------------------------------------------------------------------
+5. EXEMPLO COM CAMINHOS ILUSTRATIVOS
+--------------------------------------------------------------------------------
+
+    cd /home/usuario/ILT-Data-Extraction/src
+
+    python inference.py \
+      /dados/imagens_validacao \
+      /dados/modelos/model_meu_projeto \
+      /dados/modelos/labels_meu_projeto.json \
+      ../count.csv \
+      -o /dados/saida/predictions.csv
+
+
+--------------------------------------------------------------------------------
+6. SAÍDA
+--------------------------------------------------------------------------------
+
+  O script gera um arquivo CSV com uma linha por imagem processada.
+
+  Colunas:
+
+    file_name           — nome do arquivo (sem o caminho)
+    path                — caminho completo da imagem
+    top1_class          — classe mais provável
+    top1_probability    — probabilidade da 1ª classe (0 a 1)
+    top2_class          — 2ª classe mais provável
+    top2_probability    — probabilidade da 2ª classe
+    top3_class          — 3ª classe mais provável
+    top3_probability    — probabilidade da 3ª classe
+
+  Exemplo de linha:
+
+    foto001.jpg,/dados/img/foto001.jpg,zoea,0.82,sombra,0.09,det,0.04
+
+  No terminal, ao final, aparece algo como:
+
+    Saved 15000 predictions to /dados/saida/predictions.csv
+
+  Durante a execução, uma barra de progresso (tqdm) mostra os lotes processados.
+
+
+--------------------------------------------------------------------------------
+7. OBSERVAÇÕES
+--------------------------------------------------------------------------------
+
+  - CPU vs GPU: se o driver NVIDIA estiver desatualizado em relação ao PyTorch,
+    pode aparecer um aviso de CUDA; nesse caso o script usa CPU automaticamente.
+
+  - O arquivo .env (se existir) NÃO é lido pelo script; os caminhos são passados
+    na linha de comando ou via variáveis exportadas no shell antes do python.
+
+  - Treinamento: o script train.py é separado e exige estrutura train/valid/test
+    com subpastas por classe. Parâmetros em JSON (ex.: input/train_params.json).
+    Consulte a documentação do treinamento se precisar gerar novo modelo.
+
+  - Fluxo típico completo:
+      1. Treinar modelo (train.py) → gera checkpoint + labels_*.json
+      2. Preparar count.csv (contagens de treino e validação)
+      3. Rodar inference.py sobre as imagens desejadas
+
+================================================================================
